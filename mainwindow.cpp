@@ -6,6 +6,9 @@ MainWindow::MainWindow(QWidget *parent)
   modified = false;
 
   createMenu();
+  createWidget();
+
+  listFileName = "E:\\Projects\\CPP\\m3u\\5368.m3u";
 }
 
 MainWindow::~MainWindow()
@@ -76,7 +79,14 @@ void MainWindow::createMenu()
 // Создание главного окна приложения
 void MainWindow::createWidget()
 {
+  // Добавление элементов на главную форму
+  vblMainLayout = new QVBoxLayout(this);
 
+  // Установка виждета на главную форму приложения
+  mainWidget = new QWidget(this);
+  mainWidget->setLayout(vblMainLayout);
+
+  setCentralWidget(mainWidget);
 }
 
 // Обработка выбора пункта меню Список - Создать
@@ -88,7 +98,27 @@ void MainWindow::slotListCreate()
 // Обработка выбора пункта меню Список - Открыть
 void MainWindow::slotListOpen()
 {
-  QMessageBox::information(this, "Внимание", "Выбран пункт меню <b>Открыть список</b>", QMessageBox::Ok, QMessageBox::Ok);
+  QStringList *playList = new QStringList();
+  listFile = new QFile(listFileName);
+
+  if ((listFile->exists())&&(listFile->open(QIODevice::ReadOnly)))
+  {
+      QString line = "";
+          while(!listFile->atEnd())
+          {
+              line = listFile->readLine();
+              playList->append(line);
+          }
+
+          listFile->close();
+  }
+
+  QString msg = "Открыт файл [%1]: прочитано строк: %2";
+  msg = msg.arg(listFileName).arg(playList->count());
+
+  QMessageBox::information(this, "Внимание", msg, QMessageBox::Ok, QMessageBox::Ok);
+
+  delete playList;
 }
 
 // Обработка выбора пункта меню Список - Сохранить

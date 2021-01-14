@@ -6,6 +6,11 @@
 #include <QMenu>
 #include <QAction>
 #include <QMessageBox>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFile>
+
+#include "playlist.h"
 
 class MainWindow : public QMainWindow
 {
@@ -16,6 +21,10 @@ public:
   ~MainWindow();
 
 private:
+  // Центральный виджет приложения
+  QWidget *mainWidget;
+  QVBoxLayout *vblMainLayout;
+
   // Элементы главного меню
   QMenuBar *mnMainMenu;
   QMenu *mnPlayList;
@@ -27,6 +36,8 @@ private:
 
   // Свойства класса
   bool modified;
+  QString listFileName;
+  QFile *listFile;
 
   // Методы класса
   void createMenu();
