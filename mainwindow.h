@@ -2,13 +2,17 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QDebug>
 #include <QMenuBar>
 #include <QMenu>
+#include <QStatusBar>
 #include <QAction>
 #include <QMessageBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFile>
+#include <QFileDialog>
+#include <QPushButton>
 
 #include "playlist.h"
 
@@ -23,7 +27,8 @@ public:
 private:
   // Центральный виджет приложения
   QWidget *mainWidget;
-  QVBoxLayout *vblMainLayout;
+  QVBoxLayout *mainLayout;
+  QPushButton *testButton;
 
   // Элементы главного меню
   QMenuBar *mnMainMenu;
@@ -34,14 +39,20 @@ private:
   QAction *aListSaveAs;
   QAction *aAppClose;
 
+  // Строка состояния
+  QStatusBar *stBar;
+
   // Свойства класса
   bool modified;
   QString listFileName;
   QFile *listFile;
+  PlayList *playList;
 
   // Методы класса
   void createMenu();
   void createWidget();
+  void setModified(bool);
+  void parsePlayList(const QStringList);
 
 private slots:
   void slotListCreate();
@@ -49,5 +60,6 @@ private slots:
   void slotListSave();
   void slotListSaveAs();
   void slotAppClose();
+  void setMod(); // временный слот
 };
 #endif // MAINWINDOW_H

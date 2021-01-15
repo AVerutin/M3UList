@@ -4,17 +4,56 @@ MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
 {
   modified = false;
+  listFileName = "";
 
   createMenu();
   createWidget();
-
-  listFileName = "E:\\Projects\\CPP\\m3u\\5368.m3u";
 }
 
 MainWindow::~MainWindow()
 {
 }
 
+
+/// Установка статуса документа:
+/// true  - документ был изменен
+/// false - документ не был изменен
+void MainWindow::setModified(bool mod)
+{
+  QString title;
+  if(listFileName.isEmpty())
+    {
+      // Имя файла не установлено
+      title = "Новый список воспроизведения";
+    }
+  else
+    {
+      title = listFileName;
+    }
+
+  if(mod)
+    {
+      setWindowTitle("* " + title);
+    }
+  else
+    {
+      setWindowTitle(title);
+    }
+
+  modified = mod;
+}
+
+
+/// Парсинг списка воспроизведения
+void MainWindow::parsePlayList(const QStringList)
+{
+  playList = new PlayList;
+
+  // Построчный анализ списка и разбор каждой строки
+}
+
+
+/// Создание главного меню приложения
 void MainWindow::createMenu()
 {
   // Пункт меню Создать
@@ -65,6 +104,7 @@ void MainWindow::createMenu()
 
   mnPlayList = new QMenu(this);
   mnPlayList->setTitle("Список");
+  mnPlayList->setStatusTip("Управление списком воспроизведения");
   mnPlayList->addAction(aListCreate);
   mnPlayList->addAction(aListOpen);
   mnPlayList->addAction(aListSave);
@@ -76,28 +116,88 @@ void MainWindow::createMenu()
   mnMainMenu->addMenu(mnPlayList);
 }
 
-// Создание главного окна приложения
+
+///Тестовый слот для установки статуса документа Изменен
+void MainWindow::setMod()
+{
+  setModified(true);
+}
+
+
+/// Создание главного окна приложения
 void MainWindow::createWidget()
 {
+  // Создание элементов главной формы
+  testButton = new QPushButton("Пуш ми!");
+  connect(testButton, &QPushButton::clicked, this, &MainWindow::setMod);
+
   // Добавление элементов на главную форму
-  vblMainLayout = new QVBoxLayout(this);
+  mainLayout = new QVBoxLayout;
+  mainLayout->addWidget(testButton);
 
-  // Установка виждета на главную форму приложения
-  mainWidget = new QWidget(this);
-  mainWidget->setLayout(vblMainLayout);
-
+  // Установка элементов на главную форму
+  mainWidget = new QWidget;
+  mainWidget->setLayout(mainLayout);
   setCentralWidget(mainWidget);
+
+  // Создание строки состояния
+  stBar = statusBar();
+  stBar->setSizeGripEnabled(false);
+  stBar->showMessage("Готово.");
+
+  // Установка параметров главной формы
+  setWindowTitle("Новый список воспроизведения");
+  setFixedSize(650, 450);
+  setWindowIcon(QIcon(":/appIcon/icons/appIcon.ico"));
 }
 
-// Обработка выбора пункта меню Список - Создать
+
+/// Обработка выбора пункта меню Список - Создать
 void MainWindow::slotListCreate()
 {
-  QMessageBox::information(this, "Внимание", "Выбран пункт меню <b>Создать новый список</b>", QMessageBox::Ok, QMessageBox::Ok);
+  if(modified)
+    {
+      // Предупреждение о наличии несохраненных изменений
+      QMessageBox::StandardButton res;
+      res = QMessageBox::warning(this, QString::fromUtf8("Внимание"),
+                            QString::fromUtf8("Все изменения в текущем списке будут утеряны!\nПродолжить в любом случае?"),
+                            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+      if(res == QMessageBox::No)
+        return;
+    }
+
+  listFileName = "";
+  playList = new PlayList;
+  stBar->showMessage("Создан новый список воспроизведения");
+  setModified(false);
 }
 
-// Обработка выбора пункта меню Список - Открыть
+
+/// Обработка выбора пункта меню Список - Открыть
 void MainWindow::slotListOpen()
 {
+  // Проверим, изменен ли документ
+  if(modified)
+    {
+      QMessageBox::StandardButton res;
+      res = QMessageBox::warning(this, QString::fromUtf8("Внимание"),
+                            QString::fromUtf8("Все изменения в текущем списке будут утеряны!\nПродолжить в любом случае?"),
+                            QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+
+      if(res == QMessageBox::No)
+        return;
+    }
+
+  listFileName = QFileDialog::getOpenFileName(this,
+                              QString::fromUtf8("Открыть список воспроизведения"),
+                              QDir::currentPath(),
+                              "Списки воспроизведения (*.m3u *.m3u8);;Все файла (*.*)");
+
+  // Пользователь отменил открытие файла
+  if(listFileName.isEmpty())
+    return;
+
   QStringList *playList = new QStringList();
   listFile = new QFile(listFileName);
 
@@ -110,13 +210,15 @@ void MainWindow::slotListOpen()
               playList->append(line);
           }
 
-          listFile->close();
-  }
+      listFile->close();
 
-  QString msg = "Открыт файл [%1]: прочитано строк: %2";
-  msg = msg.arg(listFileName).arg(playList->count());
+      QString msg = "Открыт файл [%1]: прочитано строк: %2";
+      msg = msg.arg(listFileName).arg(playList->count());
 
-  QMessageBox::information(this, "Внимание", msg, QMessageBox::Ok, QMessageBox::Ok);
+      stBar->showMessage(msg);
+      setWindowTitle("Список: " + listFileName);
+      setModified(false);
+    }
 
   delete playList;
 }
@@ -124,13 +226,41 @@ void MainWindow::slotListOpen()
 // Обработка выбора пункта меню Список - Сохранить
 void MainWindow::slotListSave()
 {
-  QMessageBox::information(this, "Внимание", "Выбран пункт меню <b>Сохранить текущий список</b>", QMessageBox::Ok, QMessageBox::Ok);
+  if(modified || listFileName.isEmpty())
+    {
+      // Сохраняем текущий плейлист под тем же именем
+      if(listFileName.isEmpty())
+        {
+          listFileName = QFileDialog::getSaveFileName(this,
+                                      QString::fromUtf8("Сохранить список воспроизведения"),
+                                      QDir::currentPath(),
+                                      "Списки воспроизведения (*.m3u *.m3u8);;Все файла (*.*)");
+
+          // Пользователь отменил сохранение файла
+          if(listFileName.isEmpty())
+            return;
+        }
+
+      stBar->showMessage("Список воспроизведения сохранен");
+      setModified(false);
+    }
 }
 
 // Обработка выбора пункта меню Список - Сохранить как
 void MainWindow::slotListSaveAs()
 {
-  QMessageBox::information(this, "Внимание", "Выбран пункт меню <b>Сохранить список под другим именем</b>", QMessageBox::Ok, QMessageBox::Ok);
+  // Запрашиваем имя нового файла и сохраянем текущй плейлист под этим именем
+  // Изменяем имя файла текущего листа на новый
+  listFileName = QFileDialog::getSaveFileName(this,
+                              QString::fromUtf8("Сохранить список воспроизведения"),
+                              QDir::currentPath(),
+                              "Списки воспроизведения (*.m3u *.m3u8);;Все файлы (*.*)");
+
+  // Пользователь отменил сохранение файла
+  if(listFileName.isEmpty())
+    return;
+
+  setModified(false);
 }
 
 // Обработка выбора пункта меню Список - Выход
@@ -138,11 +268,12 @@ void MainWindow::slotAppClose()
 {
   if(modified)
     {
-      QMessageBox::StandardButton res = QMessageBox::warning(this,
-                                                             "Внимание!",
-                                                             "Имеются <u>несохраненные изменения!</u>\nВыйти в любом случае?",
-                                                             QMessageBox::Yes | QMessageBox::No,
-                                                             QMessageBox::No);
+      QMessageBox::StandardButton res =
+          QMessageBox::warning(this,
+                               "Внимание!",
+                               "Имеются <u>несохраненные изменения!</u>\nВыйти в любом случае?",
+                               QMessageBox::Yes | QMessageBox::No,
+                               QMessageBox::No);
       if(res == QMessageBox::Yes)
         {
           close();

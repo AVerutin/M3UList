@@ -10,12 +10,14 @@ CONFIG += c++11
 
 SOURCES += \
     channel.cpp \
+    channelwindow.cpp \
     main.cpp \
     mainwindow.cpp \
     playlist.cpp
 
 HEADERS += \
     channel.h \
+    channelwindow.h \
     mainwindow.h \
     playlist.h
 
@@ -23,3 +25,16 @@ HEADERS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    playlist.qrc
+
+
+win32 {
+        RC_FILE += icon.rc
+        OTHER_FILES += icon.rc
+}
+
+FORMS +=
+
+
