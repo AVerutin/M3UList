@@ -3,3 +3,30 @@ windeployqt <ИмяФайла.exe>
 
 # Полезные ссылки
 Qt: Стандартные диалоговые окна: http://smhfa.blogspot.com/2014/03/qt.html
+Qt: Собственные диалоговые окна: http://qt-doc.ru/sozdanie-sobstvennogo-dialogovogo-okna.html
+
+
+# Заполнение списка QListWidget
+Я думаю, что это должно быть простым решением того, о чем вы просите.
+
+void MyClass::Set_List(QList<QString> filesList, int item_count)
+{
+    QVector<QString> load_set(item_count);
+    for(int i = 0; i < item_count; i++)
+    {
+        load_set[i] = filesList[i];
+        ui -> listWidget -> addItem(load_set[i]);
+    }
+}
+Затем, чтобы получить информацию обратно...
+
+void MyClass::Selection(QListWidgestItem * item)
+{
+    for(int i = 0; i < item_count; i++)
+    {
+        if(ui -> listWidget -> item(i) == item)
+        {
+            str = ui -> listWidget -> item(i) -> text();
+        }
+    }
+}

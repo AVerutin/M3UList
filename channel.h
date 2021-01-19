@@ -30,10 +30,15 @@ public:
   QString getCrop();
   void setAspectRatio(int, int);
   QString getAspectRatio();
+  int incOrder();
+  int decOrder();
+  void setOrder(int);
+  int getOrder();
 
   Channel &operator=(const Channel);
 
 private:
+  int order;
   QString aspectRatio;
   QString crop;
 };

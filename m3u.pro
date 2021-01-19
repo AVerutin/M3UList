@@ -10,16 +10,20 @@ CONFIG += c++11
 
 SOURCES += \
     channel.cpp \
-    channelwindow.cpp \
+    channeleditor.cpp \
+    groupseditor.cpp \
     main.cpp \
     mainwindow.cpp \
-    playlist.cpp
+    playlist.cpp \
+    soundtracks.cpp
 
 HEADERS += \
     channel.h \
-    channelwindow.h \
+    channeleditor.h \
+    groupseditor.h \
     mainwindow.h \
-    playlist.h
+    playlist.h \
+    soundtracks.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

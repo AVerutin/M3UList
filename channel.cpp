@@ -2,6 +2,7 @@
 
 Channel::Channel()
 {
+  order = -1;
   duration = 0;
   tvgId = 0;
   tvgName = "";
@@ -20,6 +21,8 @@ Channel::Channel()
   url = "";
 }
 
+
+/// Преобразование экземпляра класса в строку
 QString Channel::toString()
 {
   // Описание канала
@@ -108,6 +111,8 @@ QString Channel::toString()
   return result;
 }
 
+
+/// Установить параметры обрезки
 void Channel::setCrop(int w, int h, int x, int y)
 {
   crop = "";
@@ -121,6 +126,8 @@ void Channel::setCrop(int w, int h, int x, int y)
     }
 }
 
+
+/// Установить параметры соотношения сторон
 void Channel::setAspectRatio(int w, int h)
 {
   aspectRatio = "";
@@ -130,6 +137,8 @@ void Channel::setAspectRatio(int w, int h)
     }
 }
 
+
+/// Перегрузка оператора присваивания
 Channel &Channel::operator=(const Channel source)
 {
   duration = source.duration;
@@ -150,4 +159,32 @@ Channel &Channel::operator=(const Channel source)
   crop = source.crop;
 
   return *this;
+}
+
+
+/// Увеличить текущее значение положения канала
+int Channel::incOrder()
+{
+  return ++order;
+}
+
+
+/// Уменьшить текущее значение положения канала
+int Channel::decOrder()
+{
+  return --order;
+}
+
+
+/// Установить текущее значение положения канала
+void Channel::setOrder(int o)
+{
+  order = o;
+}
+
+
+/// Получить текущее значение положения канала
+int Channel::getOrder()
+{
+  return order;
 }
