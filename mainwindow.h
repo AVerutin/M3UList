@@ -26,7 +26,9 @@
 #include <QDialog>
 
 #include "playlist.h"
+#include "playlistparser.h"
 #include "channeleditor.h"
+#include "channel.h"
 #include "groupseditor.h"
 #include "soundtracks.h"
 
@@ -98,6 +100,7 @@ private:
   QStandardItemModel *model;
   QPushButton *btnChannelUp;
   QPushButton *btnChannelDown;
+  QSpacerItem *spacer5;
 
   // 6 линия
   QHBoxLayout *line6;
@@ -127,24 +130,43 @@ private:
   QString listFileName;
   QFile *listFile;
   PlayList *playList;
+  Channel *channel;
+  Parser *parser;
 
   // Методы класса
   void createMenu();
   void createWidget();
   void setModified(bool);
-  void parsePlayList(const QStringList);
+  void parsePlayList(const QString);
   void fillChannelsList();
 
+protected:
+  void closeEvent (QCloseEvent *);
+
 private slots:
-  void slotListCreate(); // Создать новый список
-  void slotListOpen(); // Открыть список из файла
-  void slotListSave(); // Сохранить список
-  void slotListSaveAs(); // Сохранить список под другим именем
-  void slotAppClose(); // Выйти из приложения
-  void slotChannelAdd(); // Добавить новый канал
-  void slotChannelEdit(); // Изменит выбранный канал
+  void slotListCreate();    // Создать новый список
+  void slotListOpen();      // Открыть список из файла
+  void slotListSave(bool);  // Сохранить список
+  void slotListSaveAs();    // Сохранить список под другим именем
+  void slotAppClose();      // Выйти из приложения
+  void slotChannelAdd();    // Добавить новый канал
+  void slotChannelEdit();   // Изменит выбранный канал
   void slotChannelDelete(); // Удалить выбранный канал
-  void slotChannelUp(); // Переместить канал вверх
-  void slotChannelDown(); // Переместить канал вниз
+  void slotChannelUp();     // Переместить канал вверх
+  void slotChannelDown();   // Переместить канал вниз
+
+  // Слоты изменения значения полей на форме
+  void slotPlaylistName_textChanged(const QString &);
+  void slotPlaylistAutoload_changeState(int);
+  void slotPlaylistEpg_textChanged(const QString &);
+  void slotPlaylistShift_textChanged(const QString &);
+  void slotPlaylistUserAgent_textChanged(const QString &);
+  void slotPlaylistCache_textChanged(const QString &);
+  void slotPlaylistCropWidth_textChanged(const QString &);
+  void slotPlaylistCropHeight_textChanged(const QString &);
+  void slotPlaylistCropTop_textChanged(const QString &);
+  void slotPlaylistCropLeft_textChanged(const QString &);
+  void slotAspectWidth_textChanged(const QString &);
+  void slotAspectHeight_textChanged(const QString &);
 };
 #endif // MAINWINDOW_H

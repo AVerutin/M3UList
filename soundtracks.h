@@ -17,7 +17,7 @@ class SoundTracks : public QDialog
   Q_OBJECT
 public:
   explicit SoundTracks(QWidget *parent = nullptr);
-  void editSoundTracks(QStringList);
+  void editSoundTracks(const QStringList);
   QStringList getSoundTracks();
 
 private:

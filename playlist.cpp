@@ -7,13 +7,20 @@ PlayList::PlayList()
   userAgent = "";
   autoload = true;
   cache = 500;
-  deinterlace = 1;
+  deinterlace = 0;
   tvgShift = 0;
-  aspectRatio = "16:9";
-  crop = "";
+  aspectWidth = 16;
+  aspectHeight = 9;
+  cropWidth = 0;
+  cropHeight = 0;
+  cropTop = 0;
+  cropLeft = 0;
   refreshPeriod = 0;
+  crop = "";
+  aspect = "";
 
   channels = new QList<Channel>;
+  channelUid = 0;
 }
 
 // Перегрузка оператора присваивания
@@ -28,8 +35,12 @@ PlayList &PlayList::operator=(const PlayList source)
   refreshPeriod = source.refreshPeriod;
   tvgShift = source.tvgShift;
   userAgent = source.userAgent;
-  crop = source.crop;
-  aspectRatio = source.aspectRatio;
+  cropWidth = source.cropWidth;
+  cropHeight = source.cropHeight;
+  cropTop = source.cropTop;
+  cropLeft = source.cropLeft;
+  aspectWidth = source.aspectWidth;
+  aspectHeight = source.aspectHeight;
   channels = new QList<Channel>;
 
   // получение списка каналов
@@ -85,9 +96,9 @@ QString PlayList::toString()
     }
 
   // соотношение сторон
-  if(!aspectRatio.isEmpty())
+  if(!aspect.isEmpty())
     {
-      result += " aspect-ratio=\"" + aspectRatio + "\"";
+      result += " aspect-ratio=\"" + aspect + "\"";
     }
 
   // сдвиг времени
@@ -121,27 +132,151 @@ QString PlayList::toString()
   return result;
 }
 
-void PlayList::setCrop(int w, int h, int x, int y)
+
+/// Установить строковое значение обрезки
+void PlayList::setCrop()
 {
-  crop = "";
-  if(w>0 && h>0)
+  if(cropWidth>0 && cropHeight>0)
     {
-      crop = QString::number(w) + "*" + QString::number(h);
-
-      if(x+0)
-        crop += "+" + QString::number(x);
-      if(y>0)
-        crop += "+" + QString::number(y);
+      crop = QString::number(cropWidth) + "*" + QString::number(cropHeight);
+      if(cropTop>0)
+        crop += "+" + QString::number(cropTop);
+      if(cropLeft>0)
+        crop += "+" + QString::number(cropLeft);
     }
-
 }
 
+
+/// Установить строковое значение соотношения сторон
+void PlayList::setAspectRatio()
+{
+  if(aspectWidth>0 && aspectHeight>0)
+    {
+      aspect = QString::number(aspectWidth) + "*" + QString::number(aspectHeight);
+    }
+}
+
+
+/// Установить обрезку кадра
+void PlayList::setCrop(int w, int h, int t, int l)
+{
+  if(w>0)
+    cropWidth = w;
+  if(h>0)
+    cropHeight = h;
+  if(t>0)
+    cropTop = t;
+  if(l>0)
+    cropLeft = l;
+
+  setCrop();
+}
+
+
+/// Установить обрезку по ширине
+void PlayList::setCropWidth(int w)
+{
+  if(w>0)
+    cropWidth = w;
+
+  setCrop();
+}
+
+
+/// Установить обрезку по высоте
+void PlayList::setCropHeight(int h)
+{
+  if(h>0)
+    cropHeight = h;
+
+  setCrop();
+}
+
+
+/// Установить обрезку сверху
+void PlayList::setCropTop(int t)
+{
+  if(t>0)
+    cropTop = t;
+
+  setCrop();
+}
+
+
+/// Установить обрезку слева
+void PlayList::setCropLeft(int l)
+{
+  if(l>0)
+    cropLeft = l;
+
+  setCrop();
+}
+
+
+/// Установить обрезку кадра из строки
+void PlayList::setCrop(QString c)
+{
+  if(!c.isEmpty())
+    crop = c;
+}
+
+
+/// Получить обрезку кадра
+QString PlayList::getCrop()
+{
+  return crop;
+}
+
+
+/// Установить соотношение сторон
 void PlayList::setAspectRatio(int w, int h)
 {
-  aspectRatio = "";
+  if(w>0)
+    aspectWidth = w;
+  if(h>0)
+    aspectHeight = h;
 
-  if(w>0 && h>0)
-    {
-      aspectRatio = QString::number(w) + ":" + QString::number(h);
-    }
+  setAspectRatio();
+}
+
+
+/// Установить ширину соотношения сторон
+void PlayList::setAspectRatioWidth(int w)
+{
+  if(w>0)
+    aspectWidth = w;
+
+  setAspectRatio();
+}
+
+
+/// Установить высоту соотношения сторон
+void PlayList::setAspectRatioHeight(int h)
+{
+  if(h>0)
+    aspectHeight = h;
+
+  setAspectRatio();
+}
+
+
+/// Установить соотношение сторон
+void PlayList::setAspectRatio(QString ratio)
+{
+  if(!ratio.isEmpty())
+    aspect = ratio;
+}
+
+
+/// Получить соотношение сторон
+QString PlayList::getAspectRatio()
+{
+  return aspect;
+}
+
+
+/// Добавить канал в список каналов
+int PlayList::addChannel(Channel)
+{
+
 }

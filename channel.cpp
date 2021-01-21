@@ -15,9 +15,9 @@ Channel::Channel()
   crop = "";
   censored = false;
   epgId = 0;
-  recordable = false; // recordable="true" or recordable="false"
-  ageRestriction = false; // agerestriction="0" or agerestriction="1"
-  nameAsKey = false; // nameaskey="0" or nameaskey="1"
+  recordable = false;
+  ageRestriction = false;
+  nameAsKey = false;
   url = "";
 }
 

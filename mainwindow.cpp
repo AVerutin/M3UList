@@ -1,17 +1,21 @@
 #include "mainwindow.h"
 
+/// Конструктор класса по-умолчанию
 MainWindow::MainWindow(QWidget *parent)
   : QMainWindow(parent)
 {
   modified = false;
   listFileName = "";
   playList = new PlayList;
+  channel = new Channel;
 
   createMenu();
   createWidget();
   fillChannelsList();
 }
 
+
+/// Деструктор класса по-умолчанию
 MainWindow::~MainWindow()
 {
 }
@@ -23,14 +27,14 @@ MainWindow::~MainWindow()
 void MainWindow::setModified(bool mod)
 {
   QString title;
-  if(listFileName.isEmpty())
+  if(playList->listName.isEmpty())
     {
       // Имя файла не установлено
       title = tr("Новый список воспроизведения");
     }
   else
     {
-      title = listFileName;
+      title = playList->listName;
     }
 
   if(mod)
@@ -54,6 +58,7 @@ void MainWindow::fillChannelsList()
     {
       QList<QStandardItem *> items;
       Channel ch = playList->channels->at(i);
+      items.append(new QStandardItem(QString::number(ch.tvgId)));
       items.append(new QStandardItem(ch.tvgName));
       items.append(new QStandardItem(ch.groupName));
       items.append(new QStandardItem(ch.url));
@@ -61,19 +66,22 @@ void MainWindow::fillChannelsList()
       model->appendRow(items);
     }
 
-  model->setHorizontalHeaderLabels(QStringList() << "Имя" << "Группа" << "Источник");
-  twChannels->resizeColumnToContents(0);
-  twChannels->resizeColumnToContents(1);
-  twChannels->resizeColumnToContents(2);
+  model->setHorizontalHeaderLabels(QStringList() <<"№" << "Имя" << "Группа" << "Источник");
+  // twChannels->resizeColumnToContents(0);
+  // twChannels->resizeColumnToContents(1);
+  // twChannels->resizeColumnToContents(2);
+  twChannels->setColumnWidth(0, 25);
+  twChannels->setColumnWidth(1, 100);
+  twChannels->setColumnWidth(2, 120);
+  twChannels->setColumnWidth(3, 250);
 }
 
 
 /// Парсинг списка воспроизведения
-void MainWindow::parsePlayList(const QStringList)
+void MainWindow::parsePlayList(const QString fileName)
 {
-  playList = new PlayList;
-
-  // Построчный анализ списка и разбор каждой строки
+  parser = new Parser(fileName);
+  *playList = parser->parse();
 }
 
 
@@ -144,27 +152,24 @@ void MainWindow::createMenu()
 /// Добавить новый канал
 void MainWindow::slotChannelAdd()
 {
-  QMessageBox::information(this, QString(tr("Внимание")),
-                              QString(tr("Добавить новый канал")),
-                              QMessageBox::Ok);
+  //  QMessageBox::information(this, QString(tr("Внимание")),
+  //                              QString(tr("Добавить новый канал")),
+  //                              QMessageBox::Ok);
 
-  // Вызов окна со списком звуковых дорожек
-  SoundTracks *snd = new SoundTracks(this);
-  QStringList st;
-  int res = snd->exec();
-  if(res == QDialog::Accepted)
+  // Вызов окна для добавления канала
+  formChannelEditor = new ChannelEditor(this);
+  if(formChannelEditor->exec() == QDialog::Accepted)
     {
-      st = snd->getSoundTracks();
-    }
-  else
-    {
-      st << "RUS" << "ENG" << "UKR";
+      *channel = formChannelEditor->getChannel();
+      playList->channels->append(*channel);
+      setModified(true);
     }
 
-  delete snd;
-  snd = nullptr;
-  // Конец вызова окна со списком звуковых дорожек
+  delete formChannelEditor;
+  formChannelEditor = nullptr;
+  fillChannelsList();
 }
+
 
 /// Редактировать выбранный канал
 void MainWindow::slotChannelEdit()
@@ -173,23 +178,9 @@ void MainWindow::slotChannelEdit()
                               QString(tr("Править выбранный канал")),
                               QMessageBox::Ok);
 
-  // Вызов окна со списком групп каналов
-  GroupsEditor *grp = new GroupsEditor(this);
-  QStringList st;
-  int res = grp->exec();
-  if(res == QDialog::Accepted)
-    {
-      st = grp->getGroups();
-    }
-  else
-    {
-      st << "Общие" << "Эфирные" << "Новостные";
-    }
 
-  delete grp;
-  grp = nullptr;
-  // Конец вызова окна со списком групп каналов
 }
+
 
 /// Удалить выбранный канал
 void MainWindow::slotChannelDelete()
@@ -197,7 +188,10 @@ void MainWindow::slotChannelDelete()
   QMessageBox::information(this, QString(tr("Внимание")),
                               QString(tr("Удалить выбранный канал")),
                               QMessageBox::Ok);
+
+
 }
+
 
 /// Переместить выбранный канал вверх
 void MainWindow::slotChannelUp()
@@ -207,13 +201,153 @@ void MainWindow::slotChannelUp()
                               QMessageBox::Ok);
 }
 
+
 /// Переместить выбранный канал вниз
 void MainWindow::slotChannelDown()
 {
   QMessageBox::information(this, QString(tr("Внимание")),
                               QString(tr("Переместить выбранный канал вниз")),
-                              QMessageBox::Ok);
+                           QMessageBox::Ok);
 }
+
+
+/// Обработка сигнала изменения текста в поле ввода имени списка
+void MainWindow::slotPlaylistName_textChanged(const QString &name)
+{
+  if(!name.isEmpty() && name != "")
+    {
+      playList->listName = name;
+    }
+  else
+    {
+      playList->listName.clear();
+    }
+
+  setModified(true);
+}
+
+
+/// Обработка сигнала изменения состояния переключателя автозагрузки списка
+void MainWindow::slotPlaylistAutoload_changeState(int state)
+{
+  playList->autoload = bool(state);
+  setModified(true);
+}
+
+
+/// Обработка сигнала изменения текста в поле телегида
+void MainWindow::slotPlaylistEpg_textChanged(const QString &epg)
+{
+  if(!epg.isEmpty())
+    {
+      playList->urlTvg = epg;
+      setModified(true);
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле смещения
+void MainWindow::slotPlaylistShift_textChanged(const QString &shift)
+{
+  if(!shift.isEmpty())
+    {
+      int iShift = shift.toInt();
+      if(iShift>0)
+        {
+          playList->tvgShift = iShift;
+          setModified(true);
+        }
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле юзер-агента
+void MainWindow::slotPlaylistUserAgent_textChanged(const QString &agent)
+{
+  if(!agent.isEmpty())
+    {
+      playList->userAgent = agent;
+      setModified(true);
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле кеш
+void MainWindow::slotPlaylistCache_textChanged(const QString &cache)
+{
+  if(!cache.isEmpty())
+    {
+      playList->cache = cache.toInt();
+      setModified(true);
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле Обрезка по ширине
+void MainWindow::slotPlaylistCropWidth_textChanged(const QString &width)
+{
+  if(!width.isEmpty())
+    {
+      playList->setCropWidth(width.toInt());
+      setModified(true);
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле Обрезка по высоте
+void MainWindow::slotPlaylistCropHeight_textChanged(const QString &height)
+{
+  if(!height.isEmpty())
+    {
+      playList->setCropHeight(height.toInt());
+      setModified(true);
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле Обрезка сверху
+void MainWindow::slotPlaylistCropTop_textChanged(const QString &top)
+{
+  if(!top.isEmpty())
+    {
+      playList->setCropTop(top.toInt());
+      setModified(true);
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле Обрезка слева
+void MainWindow::slotPlaylistCropLeft_textChanged(const QString &left)
+{
+  if(!left.isEmpty())
+    {
+      playList->setCropLeft(left.toInt());
+      setModified(true);
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле Соотношение сторон - Ширина
+void MainWindow::slotAspectWidth_textChanged(const QString &width)
+{
+  if(!width.isEmpty())
+    {
+      playList->setAspectRatioWidth(width.toInt());
+      setModified(true);
+    }
+}
+
+
+/// Обработка сигнала изменения текста в поле Соотношение сторон - Высота
+void MainWindow::slotAspectHeight_textChanged(const QString &height)
+{
+  if(!height.isEmpty())
+    {
+      playList->setAspectRatioHeight(height.toInt());
+      setModified(true);
+    }
+}
+
 
 /// Создание главного окна приложения
 void MainWindow::createWidget()
@@ -223,9 +357,11 @@ void MainWindow::createWidget()
   // Элементы 1 линии
   lblListName = new QLabel(tr("Имя списка"));
   leListName = new QLineEdit;
+  connect(leListName, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistName_textChanged);
   lblListName->setBuddy(leListName);
   cbAutoload = new QCheckBox(tr("Автозагрузка"));
   cbAutoload->setChecked(false);
+  connect(cbAutoload, &QCheckBox::stateChanged, this, &MainWindow::slotPlaylistAutoload_changeState);
   line1 = new QHBoxLayout;
   line1->addWidget(lblListName);
   line1->addWidget(leListName);
@@ -234,6 +370,7 @@ void MainWindow::createWidget()
   // Элементы 2 линии
   lblEpg = new QLabel(tr("Телегид"));
   leEpg = new QLineEdit;
+  connect(leEpg, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistEpg_textChanged);
   lblEpg->setBuddy(leEpg);
   line2 = new QHBoxLayout;
   line2->addWidget(lblEpg);
@@ -242,14 +379,17 @@ void MainWindow::createWidget()
   // Элементы 3 линии
   lblAgent = new QLabel(tr("Агент"));
   leAgent = new QLineEdit;
+  connect(leAgent, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistUserAgent_textChanged);
   lblAgent->setBuddy(leAgent);
   spacer1 = new QSpacerItem(20, 20, QSizePolicy::Expanding);
   lblShift = new QLabel(tr("Смещение"));
   leShift = new QLineEdit;
+  connect(leShift, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistShift_textChanged);
   lblShift->setBuddy(leShift);
   spacer2 = new QSpacerItem(20, 20, QSizePolicy::Expanding);
   lblCache = new QLabel(tr("Кэш"));
   leCache = new QLineEdit;
+  connect(leCache, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistCache_textChanged);
   lblCache->setBuddy(leCache);
   line3 = new QHBoxLayout;
   line3->addWidget(lblAgent);
@@ -265,9 +405,11 @@ void MainWindow::createWidget()
   // левая группа
   lblCropWidth = new QLabel(tr("Ширина"));
   leCropWidth = new QLineEdit;
+  connect(leCropWidth, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistCropWidth_textChanged);
   lblCropWidth->setBuddy(leCropWidth);
   lblCropHeight = new QLabel(tr("Высота"));
   leCropHeight = new QLineEdit;
+  connect(leCropHeight, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistCropHeight_textChanged);
   lblCropHeight->setBuddy(leCropHeight);
   lp1Line1 = new QHBoxLayout;
   lp1Line1->addWidget(lblCropWidth);
@@ -277,9 +419,11 @@ void MainWindow::createWidget()
 
   lblCropTop = new QLabel(tr("Сверху"));
   leCropTop = new QLineEdit;
+  connect(leCropTop, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistCropTop_textChanged);
   lblCropTop->setBuddy(leCropTop);
   lblCropLeft = new QLabel(tr("Слева"));
   leCropLeft = new QLineEdit;
+  connect(leCropLeft, &QLineEdit::textChanged, this, &MainWindow::slotPlaylistCropLeft_textChanged);
   lblCropLeft->setBuddy(leCropLeft);
   lp1Line2 = new QHBoxLayout;
   lp1Line2->addWidget(lblCropTop);
@@ -296,9 +440,11 @@ void MainWindow::createWidget()
   // правая группа
   lblAspectWidth = new QLabel(tr("Ширина"));
   leAspectWidth = new QLineEdit;
+  connect(leAspectWidth, &QLineEdit::textChanged, this, &MainWindow::slotAspectWidth_textChanged);
   lblAspectWidth->setBuddy(leAspectWidth);
   lblAspectHeight = new QLabel(tr("Высота"));
   leAspectHeight = new QLineEdit;
+  connect(leAspectHeight, &QLineEdit::textChanged, this, &MainWindow::slotAspectHeight_textChanged);
   lblAspectHeight->setBuddy(leAspectHeight);
   lp2Line1 = new QHBoxLayout;
   lp2Line1->addWidget(lblAspectWidth);
@@ -318,20 +464,26 @@ void MainWindow::createWidget()
 
   // Элементы 5 линии
   twChannels = new QTableView;
+  twChannels->setSelectionBehavior(QAbstractItemView::SelectRows);
+  twChannels->setEditTriggers(QAbstractItemView::NoEditTriggers);
   model = new QStandardItemModel(this);
   twChannels->setModel(model);
 
   line5 = new QHBoxLayout;
-  btnChannelUp = new QPushButton(tr("↑"));
+  btnChannelUp = new QPushButton(tr("Вверх"));
+  btnChannelUp->setFixedWidth(70);
   connect(btnChannelUp, &QPushButton::clicked, this, &MainWindow::slotChannelUp);
-  btnChannelDown = new QPushButton(tr("↓"));
+  btnChannelDown = new QPushButton(tr("Вниз"));
+  btnChannelDown->setFixedWidth(70);
   connect(btnChannelDown, &QPushButton::clicked, this, &MainWindow::slotChannelDown);
+  spacer5 = new QSpacerItem(0, 40, QSizePolicy::Ignored, QSizePolicy::Expanding);
   lp5Buttons = new QVBoxLayout;
-  lp5Buttons->addWidget(btnChannelUp);
-  lp5Buttons->addWidget(btnChannelDown);
+  lp5Buttons->addWidget(btnChannelUp, 1);
+  lp5Buttons->addWidget(btnChannelDown, 1);
+  lp5Buttons->addSpacerItem(spacer5);
 
-  line5->addWidget(twChannels);
-  line5->addLayout(lp5Buttons);
+  line5->addWidget(twChannels, 0);
+  line5->addLayout(lp5Buttons, 1);
 
   // Элементы 6 линии
   spacer3 = new QSpacerItem(20, 20, QSizePolicy::Expanding);
@@ -348,8 +500,6 @@ void MainWindow::createWidget()
   line6->addWidget(btnEdit);
   line6->addWidget(btnDelete);
   line6->addSpacerItem(spacer4);
-
-  //connect(testButton, &QPushButton::clicked, this, &MainWindow::setMod);
 
   // Добавление элементов на главную форму
   mainLayout = new QVBoxLayout;
@@ -423,35 +573,21 @@ void MainWindow::slotListOpen()
   if(listFileName.isEmpty())
     return;
 
-  QStringList *playList = new QStringList();
-  listFile = new QFile(listFileName);
+  parsePlayList(listFileName);
 
-  if ((listFile->exists())&&(listFile->open(QIODevice::ReadOnly)))
-  {
-      QString line = "";
-          while(!listFile->atEnd())
-          {
-              line = listFile->readLine();
-              playList->append(line);
-          }
+  QString msg = tr("Открыт файл [%1]");
+  msg = msg.arg(listFileName);
 
-      listFile->close();
-
-      QString msg = tr("Открыт файл [%1]: прочитано строк: %2");
-      msg = msg.arg(listFileName).arg(playList->count());
-
-      stBar->showMessage(msg);
-      setWindowTitle(tr("Список: ") + listFileName);
-      setModified(false);
-    }
-
-  delete playList;
+  stBar->showMessage(msg);
+  setWindowTitle(tr("Список: ") + listFileName);
+  setModified(false);
 }
 
+
 /// Обработка выбора пункта меню Список - Сохранить
-void MainWindow::slotListSave()
+void MainWindow::slotListSave(bool permanent)
 {
-  if(modified || listFileName.isEmpty())
+  if(modified || permanent || listFileName.isEmpty())
     {
       // Сохраняем текущий плейлист под тем же именем
       if(listFileName.isEmpty())
@@ -464,12 +600,45 @@ void MainWindow::slotListSave()
           // Пользователь отменил сохранение файла
           if(listFileName.isEmpty())
             return;
+
+          listFile = new QFile(listFileName);
+          if(listFile->open(QIODevice::WriteOnly | QIODevice::Text))
+            {
+              QTextStream writeStream(listFile);
+
+              // Записывем заголовок списка
+              writeStream << "#EXTM3U";
+              writeStream << (playList->urlTvg.isEmpty() ? "" : " url-tvg=\"" + playList->urlTvg + "\"");
+              writeStream << (playList->tvgShift!=0 ? " tvg-shift=\"" + QString::number(playList->tvgShift) + "\"" : "");
+              writeStream << (playList->cache==0 ? "" : " cache=\"" + QString::number(playList->cache) + "\"");
+              writeStream << (playList->deinterlace==0 ? "" : " deinterlace=\"" + QString::number(playList->deinterlace) + "\"");
+              writeStream << (playList->getAspectRatio().isEmpty() ? "" : " aspect-ratio=\"" + playList->getAspectRatio() + "\"");
+              writeStream << (playList->getCrop().isEmpty() ? "" : " crop=\"" + playList->getCrop() + "\"");
+              writeStream << (playList->refreshPeriod==0 ? "" : " refresh=\"" + QString::number(playList->refreshPeriod) + "\"");
+              writeStream << (!playList->autoload ? "" : " m3uautoload=\"1\"");
+              writeStream << "\n";
+
+              // Записываем юзер-агента
+              writeStream << (!playList->userAgent.isEmpty() ? "#EXTVLCOPT:http-user-agent=\"" + playList->userAgent + "\"\n" : "");
+
+              // Записываем название списка
+              writeStream << (!playList->listName.isEmpty() ? "#PLAYLIST:" + playList->listName + "\n" : "");
+
+              // Записываем имеющиеся каналы
+              for(int i=0; i<playList->channels->size(); i++)
+                {
+                  writeStream << "";
+                }
+
+              listFile->close();
+            }
         }
 
-      stBar->showMessage(tr("Список воспроизведения сохранен"));
+      stBar->showMessage(tr("Список воспроизведения сохранен в файл: ") + listFileName);
       setModified(false);
     }
 }
+
 
 /// Обработка выбора пункта меню Список - Сохранить как
 void MainWindow::slotListSaveAs()
@@ -485,12 +654,22 @@ void MainWindow::slotListSaveAs()
   if(listFileName.isEmpty())
     return;
 
+  slotListSave(true);
+
   setModified(false);
 }
+
 
 /// Обработка выбора пункта меню Список - Выход
 void MainWindow::slotAppClose()
 {
+  close();
+}
+
+
+/// Обработка события выхода из приложения
+void MainWindow::closeEvent(QCloseEvent *event)
+ {
   if(modified)
     {
       QMessageBox::StandardButton res =
@@ -501,14 +680,17 @@ void MainWindow::slotAppClose()
                                QMessageBox::No);
       if(res == QMessageBox::Yes)
         {
-          close();
+          event->accept();
+        }
+      else
+        {
+          event->ignore();
         }
     }
   else
     {
-      close();
+      event->accept();
     }
-}
 
-
+ }
 

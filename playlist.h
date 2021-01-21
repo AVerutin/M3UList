@@ -18,19 +18,41 @@ public:
   int tvgShift;
   QString userAgent;
 
-  QList<Channel> *channels;
-
   //Методы класса
   PlayList();
   PlayList &operator=(const PlayList);
   QString toString();
-  void setCrop(int, int, int, int);
-  void setAspectRatio(int, int);
+  void setCrop(int w, int h, int t, int l);
+  void setCropWidth(int w);
+  void setCropHeight(int h);
+  void setCropTop(int t);
+  void setCropLeft(int l);
+  void setCrop(QString);
+  QString getCrop();
+  void setAspectRatio(int w, int h);
+  void setAspectRatioWidth(int w);
+  void setAspectRatioHeight(int h);
+  void setAspectRatio(QString);
+  QString getAspectRatio();
+  int addChannel(Channel);
+  int editChannel(Channel);
+  bool deleteChannel(int);
 
 private:
-  QString crop;
-  QString aspectRatio;
+  QList<Channel> *channels;
+  int channelUid;
 
+  int cropWidth;
+  int cropHeight;
+  int cropTop;
+  int cropLeft;
+  QString crop;
+  int aspectWidth;
+  int aspectHeight;
+  QString aspect;
+
+  void setCrop();
+  void setAspectRatio();
 };
 
 #endif // PLAYLIST_H

@@ -1,4 +1,5 @@
 #EXTM3U url-tvg="http://ottg.tv/epg.xml.gz"
+#PLAYLIST:New playlist loaded from some source
 #EXTINF:-1 group-title="Болгария",BNT 1=== https://t.me/iptvpotok ===
 http://188.35.9.26:7030/udp/123u
 #EXTINF:-1 group-title="Болгария",101_BNT 1

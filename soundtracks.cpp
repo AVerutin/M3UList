@@ -62,7 +62,7 @@ void SoundTracks::slotAddTrack()
                                QString::fromUtf8("Звуковая дорожка"),
                                QString::fromUtf8("Дорожка:"),
                                QLineEdit::Normal,
-                               "", &ok);
+                               "", &ok, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
   if (ok && !text.isEmpty()){
       trackEdit->addItem(QString::fromUtf8("%1").arg(text));
     }
@@ -103,7 +103,7 @@ void SoundTracks::slotEditTrack()
                                QString::fromUtf8("Звуковая дорожка"),
                                QString::fromUtf8("Дорожка:"),
                                QLineEdit::Normal,
-                               trackEdit->currentItem()->text(), &ok);
+                               trackEdit->currentItem()->text(), &ok, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
   if (ok && !text.isEmpty()){
       trackEdit->currentItem()->setText(QString::fromUtf8("%1").arg(text));
     }

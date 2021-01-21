@@ -18,8 +18,9 @@ class GroupsEditor : public QDialog
   Q_OBJECT
 public:
   explicit GroupsEditor(QWidget *parent = nullptr);
-  void editGroups(QStringList);
+  void editGroups(const QStringList);
   QStringList getGroups();
+  void setGroups(QStringList);
 
 private:
   QStringList *groups;

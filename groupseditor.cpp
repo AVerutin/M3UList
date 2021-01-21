@@ -8,6 +8,20 @@ GroupsEditor::GroupsEditor(QWidget *parent)
 }
 
 
+/// Установить список групп
+void GroupsEditor::setGroups(QStringList grps)
+{
+  if(grps.size() > 0)
+    {
+      groups->clear();
+      for(int i=0; i<grps.size(); i++)
+        {
+          groups->append(grps.at(i));
+        }
+    }
+}
+
+
 /// Компоновка формы
 void GroupsEditor::createCentralWidget()
 {
@@ -63,7 +77,7 @@ void GroupsEditor::slotAddGroup()
                                QString::fromUtf8("Группа каналов"),
                                QString::fromUtf8("Группа:"),
                                QLineEdit::Normal,
-                               "", &ok);
+                               "", &ok, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
   if (ok && !text.isEmpty()){
       groupsEdit->addItem(QString::fromUtf8("%1").arg(text));
     }
@@ -71,7 +85,7 @@ void GroupsEditor::slotAddGroup()
 
 
 /// Правка списка звуковых дорожек
-void GroupsEditor::editGroups(QStringList list)
+void GroupsEditor::editGroups(const QStringList list)
 {
   groupsEdit->clear();
 
@@ -104,7 +118,7 @@ void GroupsEditor::slotEditGroup()
                                QString::fromUtf8("Группа каналов"),
                                QString::fromUtf8("Группа:"),
                                QLineEdit::Normal,
-                               groupsEdit->currentItem()->text(), &ok);
+                               groupsEdit->currentItem()->text(), &ok, Qt::WindowTitleHint | Qt::WindowSystemMenuHint);
   if (ok && !text.isEmpty()){
       groupsEdit->currentItem()->setText(QString::fromUtf8("%1").arg(text));
     }

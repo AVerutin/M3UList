@@ -15,6 +15,7 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     playlist.cpp \
+    playlistparser.cpp \
     soundtracks.cpp
 
 HEADERS += \
@@ -23,6 +24,7 @@ HEADERS += \
     groupseditor.h \
     mainwindow.h \
     playlist.h \
+    playlistparser.h \
     soundtracks.h
 
 # Default rules for deployment.
