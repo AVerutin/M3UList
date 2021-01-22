@@ -276,7 +276,76 @@ QString PlayList::getAspectRatio()
 
 
 /// Добавить канал в список каналов
-int PlayList::addChannel(Channel)
+int PlayList::addChannel(const Channel ch)
 {
+  int uid = 1;
+  QList<Channel>::iterator it;
+  for(it=channels->begin(); it!=channels->end(); it++)
+    {
+      if(it->tvgId > uid)
+        uid = it->tvgId;
+    }
 
+  Channel item = ch;
+  item.tvgId = uid;
+  channels->append(item);
+
+  return uid;
 }
+
+
+/// Правка канала
+Channel PlayList::editChannel(const Channel ch)
+{
+  Channel res = ch;
+
+  return res;
+}
+
+
+/// Удалить канал по номеру позиции в списке
+bool PlayList::deleteChannelAt(int)
+{
+  return false;
+}
+
+
+/// Удалить канал по идентификатору
+bool PlayList::deleteChannel(int)
+{
+  return false;
+}
+
+
+/// Получить количество каналов
+int PlayList::getChannelsCount()
+{
+  return channels->size();
+}
+
+
+/// Получить канал по его номеру
+Channel PlayList::getChannelAt(int pos)
+{
+  Channel res;
+  if(pos <= channels->size())
+    res = channels->at(pos);
+
+  return res;
+}
+
+
+/// Получить канал по его идентификатору
+Channel PlayList::getChannel(int uid)
+{
+  Channel res;
+  for(int i=0; i<channels->size(); i++)
+    if(channels->at(i).tvgId == uid)
+      {
+        res = channels->at(i);
+        break;
+      }
+
+  return res;
+}
+

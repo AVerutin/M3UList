@@ -54,10 +54,10 @@ void MainWindow::setModified(bool mod)
 void MainWindow::fillChannelsList()
 {
   model->clear();
-  for(int i=0; i<playList->channels->size(); i++)
+  for(int i=0; i<playList->getChannelsCount(); i++)
     {
       QList<QStandardItem *> items;
-      Channel ch = playList->channels->at(i);
+      Channel ch = playList->getChannelAt(i);
       items.append(new QStandardItem(QString::number(ch.tvgId)));
       items.append(new QStandardItem(ch.tvgName));
       items.append(new QStandardItem(ch.groupName));
@@ -161,7 +161,7 @@ void MainWindow::slotChannelAdd()
   if(formChannelEditor->exec() == QDialog::Accepted)
     {
       *channel = formChannelEditor->getChannel();
-      playList->channels->append(*channel);
+      playList->addChannel(*channel);
       setModified(true);
     }
 
@@ -625,7 +625,7 @@ void MainWindow::slotListSave(bool permanent)
               writeStream << (!playList->listName.isEmpty() ? "#PLAYLIST:" + playList->listName + "\n" : "");
 
               // Записываем имеющиеся каналы
-              for(int i=0; i<playList->channels->size(); i++)
+              for(int i=0; i<playList->getChannelsCount(); i++)
                 {
                   writeStream << "";
                 }

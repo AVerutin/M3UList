@@ -21,6 +21,7 @@ SOURCES += \
 HEADERS += \
     channel.h \
     channeleditor.h \
+    datatypes.h \
     groupseditor.h \
     mainwindow.h \
     playlist.h \

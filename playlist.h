@@ -34,9 +34,13 @@ public:
   void setAspectRatioHeight(int h);
   void setAspectRatio(QString);
   QString getAspectRatio();
-  int addChannel(Channel);
-  int editChannel(Channel);
+  int addChannel(const Channel);
+  Channel editChannel(const Channel);
+  bool deleteChannelAt(int);
   bool deleteChannel(int);
+  int getChannelsCount();
+  Channel getChannelAt(int);
+  Channel getChannel(int);
 
 private:
   QList<Channel> *channels;

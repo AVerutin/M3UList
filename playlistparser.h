@@ -25,6 +25,7 @@ private:
 
   PlayList getListTitle(QString);
   QString getListName(QString);
+  QString getVlcOpt(QString);
   Channel getChannelInfo(QString);
 };
 

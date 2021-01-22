@@ -21,6 +21,8 @@ public:
   bool recordable;
   bool ageRestriction;
   bool nameAsKey;
+  QString urlM3u;
+  bool mono;
   QString url;
 
   // Методы класса

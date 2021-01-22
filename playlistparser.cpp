@@ -64,7 +64,7 @@ PlayList Parser::parse()
             {
               // Ссылка на источник канала
               chan.url = line;
-              list.channels->append(chan);
+              list.addChannel(chan);
             }
         }
 
