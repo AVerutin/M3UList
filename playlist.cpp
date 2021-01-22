@@ -1,10 +1,10 @@
 #include "playlist.h"
 
+/// Конструктор по умолчанию
 PlayList::PlayList()
 {
-  listName = "Noname playlist";
+  listName = "NoName";
   urlTvg = "http://epg.it999.ru/edem.xml.gz";
-  userAgent = "";
   autoload = true;
   cache = 500;
   deinterlace = 0;
@@ -23,8 +23,9 @@ PlayList::PlayList()
   channelUid = 0;
 }
 
-// Перегрузка оператора присваивания
-PlayList &PlayList::operator=(const PlayList source)
+
+/// Перегрузка оператора присваивания
+PlayList &PlayList::operator=(const PlayList &source)
 {
   // получение параметров свойств списка
   listName = source.listName;
@@ -34,7 +35,6 @@ PlayList &PlayList::operator=(const PlayList source)
   deinterlace = source.deinterlace;
   refreshPeriod = source.refreshPeriod;
   tvgShift = source.tvgShift;
-  userAgent = source.userAgent;
   cropWidth = source.cropWidth;
   cropHeight = source.cropHeight;
   cropTop = source.cropTop;
@@ -52,6 +52,8 @@ PlayList &PlayList::operator=(const PlayList source)
   return *this;
 }
 
+
+/// Преобразование в строку
 QString PlayList::toString()
 {
   QString result;
@@ -60,12 +62,6 @@ QString PlayList::toString()
   if(!listName.isEmpty())
     {
       result += "#PLAYLIST: " + listName + "\n";
-    }
-
-  // юзер-агент
-  if(!userAgent.isEmpty())
-    {
-      result += "#EXTVLCOPT:http-user-agent=" + userAgent + "\n";
     }
 
   // Описание листа
@@ -214,7 +210,7 @@ void PlayList::setCropLeft(int l)
 
 
 /// Установить обрезку кадра из строки
-void PlayList::setCrop(QString c)
+void PlayList::setCrop(const QString &c)
 {
   if(!c.isEmpty())
     crop = c;
@@ -261,7 +257,7 @@ void PlayList::setAspectRatioHeight(int h)
 
 
 /// Установить соотношение сторон
-void PlayList::setAspectRatio(QString ratio)
+void PlayList::setAspectRatio(const QString &ratio)
 {
   if(!ratio.isEmpty())
     aspect = ratio;
@@ -276,18 +272,18 @@ QString PlayList::getAspectRatio()
 
 
 /// Добавить канал в список каналов
-int PlayList::addChannel(const Channel ch)
+int PlayList::addChannel(const Channel &ch)
 {
   int uid = 1;
   QList<Channel>::iterator it;
   for(it=channels->begin(); it!=channels->end(); it++)
     {
-      if(it->tvgId > uid)
-        uid = it->tvgId;
+      if(it->getId() > uid)
+        uid = it->getId();
     }
 
   Channel item = ch;
-  item.tvgId = uid;
+  item.setId(uid);
   channels->append(item);
 
   return uid;
@@ -295,7 +291,7 @@ int PlayList::addChannel(const Channel ch)
 
 
 /// Правка канала
-Channel PlayList::editChannel(const Channel ch)
+Channel PlayList::editChannel(const Channel &ch)
 {
   Channel res = ch;
 
@@ -340,12 +336,105 @@ Channel PlayList::getChannel(int uid)
 {
   Channel res;
   for(int i=0; i<channels->size(); i++)
-    if(channels->at(i).tvgId == uid)
-      {
-        res = channels->at(i);
-        break;
-      }
+    {
+      Channel ch = channels->at(i);
+      if(ch.getId() == uid)
+        {
+          res = ch;
+          break;
+        }
+    }
 
   return res;
 }
+
+
+/// Наименование списка
+void PlayList::setListName(const QString &name)
+{
+  if(!name.isEmpty())
+    listName = name;
+}
+
+QString PlayList::getListName()
+{
+  return listName;
+}
+
+
+/// Ссылка на телегид
+void PlayList::setUrlTvg(const QString &epg)
+{
+  if(!epg.isEmpty())
+    urlTvg = epg;
+}
+
+QString PlayList::getUrlTvg()
+{
+  return urlTvg;
+}
+
+
+/// Автозагрузка списка
+void PlayList::setAutoload(bool loading)
+{
+  autoload = loading;
+}
+
+bool PlayList::isAutoload()
+{
+  return autoload;
+}
+
+
+/// Размер кеша
+void PlayList::setCache(int c)
+{
+  if(c>=0)
+    cache = c;
+}
+
+int PlayList::getCache()
+{
+  return cache;
+}
+
+
+/// Тип черезстрочности
+void PlayList::setDeinterlace(int type)
+{
+  if(type>=0)
+    deinterlace = type;
+}
+
+int PlayList::getDeinterlace()
+{
+  return deinterlace;
+}
+
+
+/// Период обновления
+void PlayList::setRefreshPeriod(int ref)
+{
+  if(ref>=0)
+    refreshPeriod = ref;
+}
+
+int PlayList::getRefreshPeriod()
+{
+  return refreshPeriod;
+}
+
+
+/// Сдвиг времени списка
+void PlayList::setTvgShift(int shift)
+{
+  tvgShift = shift;
+}
+
+int PlayList::getTvgShift()
+{
+  return tvgShift;
+}
+
 

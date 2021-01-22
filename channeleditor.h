@@ -5,6 +5,7 @@
 
 #include <QDialog>
 #include <QtWidgets>
+#include <QtSql>
 
 #include "channel.h"
 #include "soundtracks.h"
@@ -15,6 +16,8 @@ class ChannelEditor : public QDialog
   Q_OBJECT
 public:
   explicit ChannelEditor(QWidget *parent = nullptr);
+  ~ChannelEditor();
+
   Channel getChannel();
   void setTitle(const QString);
 
@@ -74,7 +77,13 @@ private:
   QPushButton *pbCancel;
   QSpacerItem *hSpacer2;
 
+  QSqlDatabase sdb;
+  QSqlQuery *query;
+  QStringList groupsList;
+  QStringList tracksList;
+
   void createCentralWidget();
+  void dbInit();
 
 private slots:
   void slotAccept();

@@ -27,14 +27,14 @@ MainWindow::~MainWindow()
 void MainWindow::setModified(bool mod)
 {
   QString title;
-  if(playList->listName.isEmpty())
+  if(playList->getListName().isEmpty())
     {
       // Имя файла не установлено
       title = tr("Новый список воспроизведения");
     }
   else
     {
-      title = playList->listName;
+      title = playList->getListName();
     }
 
   if(mod)
@@ -58,10 +58,10 @@ void MainWindow::fillChannelsList()
     {
       QList<QStandardItem *> items;
       Channel ch = playList->getChannelAt(i);
-      items.append(new QStandardItem(QString::number(ch.tvgId)));
-      items.append(new QStandardItem(ch.tvgName));
-      items.append(new QStandardItem(ch.groupName));
-      items.append(new QStandardItem(ch.url));
+      items.append(new QStandardItem(QString::number(ch.getId())));
+      items.append(new QStandardItem(ch.getTvgName()));
+      items.append(new QStandardItem(ch.getGroupName()));
+      items.append(new QStandardItem(ch.getUrl()));
 
       model->appendRow(items);
     }
@@ -216,11 +216,11 @@ void MainWindow::slotPlaylistName_textChanged(const QString &name)
 {
   if(!name.isEmpty() && name != "")
     {
-      playList->listName = name;
+      playList->setListName(name);
     }
   else
     {
-      playList->listName.clear();
+      playList->setListName("");
     }
 
   setModified(true);
@@ -230,7 +230,7 @@ void MainWindow::slotPlaylistName_textChanged(const QString &name)
 /// Обработка сигнала изменения состояния переключателя автозагрузки списка
 void MainWindow::slotPlaylistAutoload_changeState(int state)
 {
-  playList->autoload = bool(state);
+  playList->setAutoload((bool)state);
   setModified(true);
 }
 
@@ -240,7 +240,7 @@ void MainWindow::slotPlaylistEpg_textChanged(const QString &epg)
 {
   if(!epg.isEmpty())
     {
-      playList->urlTvg = epg;
+      playList->setUrlTvg(epg);
       setModified(true);
     }
 }
@@ -254,7 +254,7 @@ void MainWindow::slotPlaylistShift_textChanged(const QString &shift)
       int iShift = shift.toInt();
       if(iShift>0)
         {
-          playList->tvgShift = iShift;
+          playList->setTvgShift(iShift);
           setModified(true);
         }
     }
@@ -262,13 +262,14 @@ void MainWindow::slotPlaylistShift_textChanged(const QString &shift)
 
 
 /// Обработка сигнала изменения текста в поле юзер-агента
-void MainWindow::slotPlaylistUserAgent_textChanged(const QString &agent)
+void MainWindow::slotPlaylistUserAgent_textChanged(const QString &)
 {
-  if(!agent.isEmpty())
-    {
-      playList->userAgent = agent;
-      setModified(true);
-    }
+  // Юзер-агент перемещен в класс Channel
+//  if(!agent.isEmpty())
+//    {
+//      playList->setUserAgent(agent);
+//      setModified(true);
+//    }
 }
 
 
@@ -277,7 +278,7 @@ void MainWindow::slotPlaylistCache_textChanged(const QString &cache)
 {
   if(!cache.isEmpty())
     {
-      playList->cache = cache.toInt();
+      playList->setCache(cache.toInt());
       setModified(true);
     }
 }
@@ -608,26 +609,41 @@ void MainWindow::slotListSave(bool permanent)
 
               // Записывем заголовок списка
               writeStream << "#EXTM3U";
-              writeStream << (playList->urlTvg.isEmpty() ? "" : " url-tvg=\"" + playList->urlTvg + "\"");
-              writeStream << (playList->tvgShift!=0 ? " tvg-shift=\"" + QString::number(playList->tvgShift) + "\"" : "");
-              writeStream << (playList->cache==0 ? "" : " cache=\"" + QString::number(playList->cache) + "\"");
-              writeStream << (playList->deinterlace==0 ? "" : " deinterlace=\"" + QString::number(playList->deinterlace) + "\"");
-              writeStream << (playList->getAspectRatio().isEmpty() ? "" : " aspect-ratio=\"" + playList->getAspectRatio() + "\"");
-              writeStream << (playList->getCrop().isEmpty() ? "" : " crop=\"" + playList->getCrop() + "\"");
-              writeStream << (playList->refreshPeriod==0 ? "" : " refresh=\"" + QString::number(playList->refreshPeriod) + "\"");
-              writeStream << (!playList->autoload ? "" : " m3uautoload=\"1\"");
+
+              QString strVal = playList->getUrlTvg();
+              writeStream << (strVal.isEmpty() ? "" : " url-tvg=\"" + strVal + "\"");
+
+              int intVal = playList->getTvgShift();
+              writeStream << (intVal!=0 ? " tvg-shift=\"" + QString::number(intVal) + "\"" : "");
+
+              intVal = playList->getCache();
+              writeStream << (intVal==0 ? "" : " cache=\"" + QString::number(intVal) + "\"");
+
+              intVal = playList->getDeinterlace();
+              writeStream << (intVal==0 ? "" : " deinterlace=\"" + QString::number(intVal) + "\"");
+
+              strVal = playList->getAspectRatio();
+              writeStream << (strVal.isEmpty() ? "" : " aspect-ratio=\"" + strVal + "\"");
+
+              strVal = playList->getCrop();
+              writeStream << (strVal.isEmpty() ? "" : " crop=\"" + strVal + "\"");
+
+              intVal = playList->getRefreshPeriod();
+              writeStream << (intVal==0 ? "" : " refresh=\"" + QString::number(intVal) + "\"");
+
+              bool boolVal = playList->isAutoload();
+              writeStream << (!boolVal ? "" : " m3uautoload=\"1\"");
               writeStream << "\n";
 
-              // Записываем юзер-агента
-              writeStream << (!playList->userAgent.isEmpty() ? "#EXTVLCOPT:http-user-agent=\"" + playList->userAgent + "\"\n" : "");
-
               // Записываем название списка
-              writeStream << (!playList->listName.isEmpty() ? "#PLAYLIST:" + playList->listName + "\n" : "");
+              strVal = playList->getListName();
+              writeStream << (!strVal.isEmpty() ? "#PLAYLIST:" + strVal + "\n" : "");
 
               // Записываем имеющиеся каналы
               for(int i=0; i<playList->getChannelsCount(); i++)
                 {
-                  writeStream << "";
+                  Channel ch = playList->getChannelAt(i);
+                  writeStream << "Channel ID = " + QString::number(ch.getId()) + "\n";
                 }
 
               listFile->close();

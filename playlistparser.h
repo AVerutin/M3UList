@@ -23,10 +23,10 @@ private:
   QFile *listFile;
   QString playlistName;
 
-  PlayList getListTitle(QString);
+  PlayListInfo getListTitle(QString);
   QString getListName(QString);
-  QString getVlcOpt(QString);
-  Channel getChannelInfo(QString);
+  VlcInfo getVlcOpt(QString);
+  ChannelInfo getChannelInfo(QString);
 };
 
 #endif // PLAYLISTPARSER_H

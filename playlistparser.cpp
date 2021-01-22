@@ -31,8 +31,17 @@ PlayList Parser::parse()
           if(line.startsWith("#EXTM3U"))
             {
               // Поиск параметров списка при помощи регулярных выражений
-              PlayList p = getListTitle(line);
-              list = p;
+              PlayListInfo plInfo = getListTitle(line);
+
+              list.setListName(plInfo.listName);
+              list.setUrlTvg(plInfo.urlTvg);
+              list.setTvgShift(plInfo.tvgShift);
+              list.setCache(plInfo.cache);
+              list.setDeinterlace(plInfo.deinterlace);
+              list.setAspectRatio(plInfo.aspect);
+              list.setCrop(plInfo.crop);
+              list.setRefreshPeriod(plInfo.refresh);
+              list.setAutoload(plInfo.autoload);
             }
 
           /// Заголовок канала
@@ -40,7 +49,25 @@ PlayList Parser::parse()
             {
               // Описание свойств канала
               channelPosition++;
-              chan = getChannelInfo(line);
+              ChannelInfo chInfo = getChannelInfo(line);
+
+              chan.setDuration(chInfo.duration);
+              chan.setId(chInfo.id);
+              chan.setTvgId(chInfo.tvgId);
+              chan.setTvgName(chInfo.tvgName);
+              chan.setTvgLogo(chInfo.tvgLogo);
+              chan.setTvgShift(chInfo.tvgShift);
+              chan.setGroupName(chInfo.groupName);
+              chan.setRadio(chInfo.radio);
+              chan.setAudioTrack(chInfo.audioTrack);
+              chan.setAspectRatio(chInfo.aspect);
+              chan.setRecordable(chInfo.recordable);
+              chan.setCensored(chInfo.recordable);
+              chan.setAgeRestricted(chInfo.ageRestrict);
+              chan.setUrlM3u(chInfo.urlM3u);
+              chan.setNameAsKey(chInfo.nameAsKey);
+              chan.setCrop(chInfo.crop);
+              chan.setMono(chInfo.mono);
               chan.setOrder(channelPosition);
 
               // Поиск параметров канала при помощи регулярных выражений
@@ -50,20 +77,22 @@ PlayList Parser::parse()
           /// Наименование списка
           else if(line.startsWith("#PLAYLIST"))
             {
-              list.listName = getListName(line);
+              list.setListName(getListName(line));
             }
 
           /// Дополнительные параметры для VLC
           else if(line.startsWith("#EXTVLCOPT"))
             {
-
+              VlcInfo vlc = getVlcOpt(line);
+              chan.setUserAgent(vlc.userAgent);
+              chan.setHttpReffer(vlc.httpReferrer);
             }
 
           /// Ссылка на источник канал
           else
             {
               // Ссылка на источник канала
-              chan.url = line;
+              chan.getUrl() = line;
               list.addChannel(chan);
             }
         }
@@ -76,9 +105,9 @@ PlayList Parser::parse()
 
 
 /// Разбор параметров заголовка списка воспроизведения
-PlayList Parser::getListTitle(QString listTitle)
+PlayListInfo Parser::getListTitle(QString listTitle)
 {
-  PlayList result;
+  PlayListInfo result;
   if(!listTitle.isEmpty())
     {
       // Анализируем строку на наличие параметров списка
@@ -131,7 +160,7 @@ PlayList Parser::getListTitle(QString listTitle)
         {
           lastPos += re.matchedLength();
           QString ratio = re.cap(1);
-          result.setAspectRatio(ratio);
+          result.aspect = ratio;
         }
 
       // crop="..."
@@ -141,7 +170,7 @@ PlayList Parser::getListTitle(QString listTitle)
         {
           lastPos += re.matchedLength();
           QString crop = re.cap(1);
-          result.setCrop(crop);
+          result.crop = crop;
         }
 
       // refresh="..."
@@ -151,7 +180,27 @@ PlayList Parser::getListTitle(QString listTitle)
         {
           lastPos += re.matchedLength();
           QString refresh = re.cap(1);
-          result.refreshPeriod = refresh.toInt();
+          result.refresh = refresh.toInt();
+        }
+
+      // m3uautoload=1
+      re = QRegExp("m3uautoload=\"(.*)\"");
+      lastPos = 0;
+      while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString autoload = re.cap(1);
+          result.autoload = (bool)autoload.toInt();
+        }
+
+      // tvg-shift=(...-2, -1, 0, +1, +2, ...)
+      re = QRegExp("tvg-shift=\"(.*)\"");
+      lastPos = 0;
+      while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString shift = re.cap(1);
+          result.tvgShift = shift.toInt();
         }
     }
 
@@ -176,10 +225,36 @@ QString Parser::getListName(QString name)
 }
 
 
-/// Разбор строки с параметрами канала
-Channel Parser::getChannelInfo(QString chan)
+/// Разбор строки с параметрами VLC
+VlcInfo Parser::getVlcOpt(QString vlc)
 {
-  Channel res;
+  VlcInfo res;
+  QRegExp re("#EXTVLCOPT:http-user-agent=(.*)");
+  int lastPos = 0;
+
+  while((lastPos = re.indexIn(vlc, lastPos)) != -1)
+    {
+      lastPos += re.matchedLength();
+      res.userAgent = re.cap(1);
+    }
+
+  re = QRegExp("#EXTVLCOPT:http-referrer=(.*)");
+  lastPos = 0;
+
+  while((lastPos = re.indexIn(vlc, lastPos)) != -1)
+    {
+      lastPos += re.matchedLength();
+      res.httpReferrer = re.cap(1);
+    }
+
+  return res;
+}
+
+
+/// Разбор строки с параметрами канала
+ChannelInfo Parser::getChannelInfo(QString chan)
+{
+  ChannelInfo res;
   if(!chan.isEmpty())
     {
       // Анализируем строку на наличие параметров списка
@@ -203,7 +278,7 @@ Channel Parser::getChannelInfo(QString chan)
         {
           lastPos += re.matchedLength();
           QString id = re.cap(1);
-          res.tvgId = id.toInt();
+          res.id = id.toInt();
         }
     }
 

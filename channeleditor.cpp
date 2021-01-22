@@ -1,19 +1,30 @@
 #include "channeleditor.h"
 
+/// Конструктор по умолчанию
 ChannelEditor::ChannelEditor(QWidget *parent) : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
   channel = new Channel;
 
+  dbInit();
   createCentralWidget();
 }
 
 
-/// Добавить новый канал
+/// Деструктор по умолчанию
+ChannelEditor::~ChannelEditor()
+{
+  sdb.close();
+}
+
+
+/// Получить добавленный канал
 Channel ChannelEditor::getChannel()
 {
   return *channel;
 }
 
+
+/// Установить заголовок окна
 void ChannelEditor::setTitle(const QString title)
 {
   if(!title.isEmpty())
@@ -158,22 +169,88 @@ void ChannelEditor::createCentralWidget()
 }
 
 
+/// Инициализация подключения к базе данных
+void ChannelEditor::dbInit()
+{
+  sdb = QSqlDatabase::addDatabase("QSQLITE");
+  QString dbPath = QCoreApplication::applicationDirPath() + "/m3u.dat";
+  // QString dbPath = "E:\\Projects\\CPP\\m3u\\m3u.dat";
+  sdb.setDatabaseName(dbPath);
+
+  query = new QSqlQuery;
+
+//  sdb = QSqlDatabase::addDatabase("QSQLITE");
+//  sdb.setDatabaseName("m3u.dat");
+//  sdb.setHostName("localhost");
+//  sdb.setUserName("admin");
+//  sdb.setPassword("admin");
+
+  // Подключение к базе данных
+  if (!sdb.open()) {
+        qDebug() << sdb.lastError().text();
+  }
+
+  /////////// DDL query ///////////
+  QString str = "CREATE TABLE IF NOT EXISTS `my_table` ("
+          "`number` integer PRIMARY KEY NOT NULL, "
+          "`address` VARCHAR(255), "
+          "`age` integer"
+          ");";
+  bool b = query->exec(str);
+  if (!b) {
+      qDebug() << sdb.lastError().text();
+  }
+
+  /////////// DML query ///////////
+  str = "INSERT INTO `my_table` (`number`, `address`, `age`) "
+          "VALUES (%1, '%2', %3);";
+  str = str.arg("14")
+          .arg("hello world str.")
+          .arg("37");
+  b = query->exec(str);
+  if (!b) {
+      qDebug() << sdb.lastError().text();
+  }
+
+  /////////// Data query ///////////
+  if (!query->exec("SELECT * FROM `my_table`"))
+    {
+      qDebug() << sdb.lastError().text();
+  }
+  QSqlRecord rec = query->record();
+  int number = 0,
+          age = 0;
+  QString address = "";
+
+  while (query->next()) {
+      number = query->value(rec.indexOf("number")).toInt();
+      age = query->value(rec.indexOf("age")).toInt();
+      address = query->value(rec.indexOf("address")).toString();
+
+      qDebug() << "number is " << number
+               << ". age is " << age
+               << ". address" << address;
+  }
+  /////////
+}
+
+
 /// Обработка сигнала нажатия на кнопку OK
 void ChannelEditor::slotAccept()
 {
-  channel->groupName = cbGroup->currentText();
-  channel->tvgName = leName->text();
-  channel->tvgId = leId->text().toInt();
-  channel->duration = leDuration->text().toInt();
-  channel->tvgLogo = leLogo->text();
-  channel->nameAsKey = cbByName->isChecked();
-  channel->tvgShift = leShift->text().toInt();
-  channel->radio = cbRadio->isChecked();
-  channel->recordable = cbHasArchive->isChecked();
-  channel->censored = cbCensored->isChecked();
-  channel->ageRestriction = cbAgeControl->isChecked();
-  channel->audioTrack = cbAudio->currentText();
-  channel->url = leSource->text();
+  channel->setGroupName(cbGroup->currentText());
+  channel->setTvgName(leName->text());
+  channel->setId(leId->text().toInt());
+  channel->setDuration(leDuration->text().toInt());
+  channel->setTvgLogo(leLogo->text());
+  channel->setNameAsKey(cbByName->isChecked());
+  channel->setTvgShift(leShift->text().toInt());
+  channel->setRadio(cbRadio->isChecked());
+  channel->setRecordable(cbHasArchive->isChecked());
+  channel->setCensored(cbCensored->isChecked());
+  channel->setAgeRestricted(cbAgeControl->isChecked());
+  channel->setAudioTrack(cbAudio->currentText());
+  channel->setUrl(leSource->text());
   accept();
 }
 

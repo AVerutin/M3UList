@@ -3,21 +3,11 @@
 Channel::Channel()
 {
   order = -1;
-  duration = 0;
-  tvgId = 0;
-  tvgName = "";
-  tvgLogo = "";
-  tvgShift = 0;
-  groupName = "";
-  radio = false;
-  audioTrack = "";
+  channelInfo = new ChannelInfo;
+  vlcInfo = new VlcInfo;
+
   aspectRatio = "";
   crop = "";
-  censored = false;
-  epgId = 0;
-  recordable = false;
-  ageRestriction = false;
-  nameAsKey = false;
   url = "";
 }
 
@@ -25,85 +15,101 @@ Channel::Channel()
 /// Преобразование экземпляра класса в строку
 QString Channel::toString()
 {
+  bool needComma = false;
+
   // Описание канала
-  QString result = "#EXTINF:" + QString::number(duration);
+  QString result = "#EXTINF:" + QString::number(channelInfo->duration);
 
   // ID канала
-  if(tvgId>0)
+  if(channelInfo->tvgId>0)
     {
-      result += " tvg-id=\"" + QString::number(tvgId) + "\n";
+      result += " tvg-id=\"" + channelInfo->tvgId + "\n";
+      needComma = true;
     }
 
   // имя канала
-  if(!tvgName.isEmpty())
+  if(!channelInfo->tvgName.isEmpty())
     {
-      result += " tvg-name=\"" +tvgName + "\"";
+      result += " tvg-name=\"" + channelInfo->tvgName + "\"";
+      needComma = true;
     }
 
   // логотип
-  if(!tvgLogo.isEmpty())
+  if(!channelInfo->tvgLogo.isEmpty())
     {
-      result += " tvg-logo=\"" + tvgLogo + "\"";
+      result += " tvg-logo=\"" + channelInfo->tvgLogo + "\"";
+      needComma = true;
     }
 
   // сдвиг
-  if(tvgShift>0)
+  if(channelInfo->tvgShift>0)
     {
-      result += " tvg-shift=\"" + QString::number(tvgShift) + "\"";
+      result += " tvg-shift=\"" + QString::number(channelInfo->tvgShift) + "\"";
+      needComma = true;
     }
 
   // радио
-  if(radio)
+  if(channelInfo->radio)
     {
       result += " radio=\"1\"" ;
+      needComma = true;
     }
 
   // звуковая дорожка
-  if(!audioTrack.isEmpty())
+  if(!channelInfo->audioTrack.isEmpty())
     {
-      result += " audio-track=\"" + audioTrack + "\"";
+      result += " audio-track=\"" + channelInfo->audioTrack + "\"";
+      needComma = true;
     }
 
   // соотношение сторон
   if(!aspectRatio.isEmpty())
     {
       result += " aspect-ratio=\"" + aspectRatio + "\"";
+      needComma = true;
     }
 
   // цензура
-  if(censored)
+  if(channelInfo->censored)
     {
       result += " censored=\"1\"";
+      needComma = true;
     }
 
   // возрастное ограничение
-  if(ageRestriction)
+  if(channelInfo->ageRestrict)
     {
       result = " agerestriction=\"1\"";
-    }
-
-  // индекс в программе
-  if(epgId>0)
-    {
-      result += " epg-id=\"" + QString::number(epgId) + "\"";
+      needComma = true;
     }
 
   // имеет архив
-  if(recordable)
+  if(channelInfo->recordable)
     {
       result += " recordable=\"true\"";
+      needComma = true;
     }
 
   // имя в качестве ключа
-  if(nameAsKey)
+  if(channelInfo->nameAsKey)
     {
       result += " nameaskey=\"1\"";
+      needComma = true;
     }
 
   // имя группы
-  if(!groupName.isEmpty())
+  if(!channelInfo->groupName.isEmpty())
     {
-      result += " group-name=\"" + groupName + "\"";
+      result += " group-name=\"" + channelInfo->groupName + "\"";
+      needComma = true;
+    }
+
+  if(!channelInfo->tvgName.isEmpty())
+    {
+      if(needComma)
+        result += ",";
+
+      result += channelInfo->tvgName;
     }
 
   result += "\n";
@@ -126,6 +132,12 @@ void Channel::setCrop(int w, int h, int x, int y)
     }
 }
 
+void Channel::setCrop(const QString &cr)
+{
+  if(!cr.isEmpty())
+    crop = cr;
+}
+
 
 /// Установить параметры соотношения сторон
 void Channel::setAspectRatio(int w, int h)
@@ -137,23 +149,28 @@ void Channel::setAspectRatio(int w, int h)
     }
 }
 
+void Channel::setAspectRatio(const QString &aspect)
+{
+  if(!aspect.isEmpty())
+    aspectRatio = aspect;
+}
+
 
 /// Перегрузка оператора присваивания
-Channel &Channel::operator=(const Channel source)
+Channel &Channel::operator=(const Channel &source)
 {
-  duration = source.duration;
-  tvgId = source.tvgId;
-  tvgName = source.tvgName;
-  tvgLogo = source.tvgLogo;
-  tvgShift = source.tvgShift;
-  groupName = source.groupName;
-  radio = source.radio;
-  audioTrack = source.audioTrack;
-  censored = source.censored;
-  epgId = source.epgId;
-  recordable = source.recordable;
-  ageRestriction = source.ageRestriction;
-  nameAsKey = source.nameAsKey;
+  channelInfo->duration = source.channelInfo->duration;
+  channelInfo->tvgId = source.channelInfo->tvgId;
+  channelInfo->tvgName = source.channelInfo->tvgName;
+  channelInfo->tvgLogo = source.channelInfo->tvgLogo;
+  channelInfo->tvgShift = source.channelInfo->tvgShift;
+  channelInfo->groupName = source.channelInfo->groupName;
+  channelInfo->radio = source.channelInfo->radio;
+  channelInfo->audioTrack = source.channelInfo->audioTrack;
+  channelInfo->censored = source.channelInfo->censored;
+  channelInfo->recordable = source.channelInfo->recordable;
+  channelInfo->ageRestrict = source.channelInfo->ageRestrict;
+  channelInfo->nameAsKey = source.channelInfo->nameAsKey;
   url = source.url;
   aspectRatio = source.aspectRatio;
   crop = source.crop;
@@ -188,3 +205,230 @@ int Channel::getOrder()
 {
   return order;
 }
+
+
+/// Юзер агент
+void Channel::setUserAgent(const QString &uAgent)
+{
+  if(!uAgent.isEmpty())
+    vlcInfo->userAgent = uAgent;
+}
+
+QString Channel::getUserAgent()
+{
+  return vlcInfo->userAgent;
+}
+
+
+/// Http Refferer
+void Channel::setHttpReffer(const QString &ref)
+{
+  if(!ref.isEmpty())
+    vlcInfo->httpReferrer = ref;
+}
+
+QString Channel::getHttpReffer()
+{
+  return vlcInfo->httpReferrer;
+}
+
+
+/// Ссылка на поток
+void Channel::setUrl(const QString &u)
+{
+  if(!u.isEmpty())
+    url = u;
+}
+
+QString Channel::getUrl()
+{
+  return url;
+}
+
+
+/// Продолжительность
+void Channel::setDuration(int duration)
+{
+  channelInfo->duration = duration;
+}
+
+int Channel::getDuration()
+{
+  return channelInfo->duration;
+}
+
+
+/// Идентификатор канала
+void Channel::setId(int id)
+{
+  channelInfo->id = id;
+}
+
+int Channel::getId()
+{
+  return channelInfo->id;
+}
+
+
+/// Идентификатор канала для телегида
+void Channel::setTvgId(const QString &tId)
+{
+  if(!tId.isEmpty())
+    channelInfo->tvgId = tId;
+}
+
+QString Channel::getTvgId()
+{
+  return channelInfo->tvgId;
+}
+
+
+/// Отображаемое имя канала
+void Channel::setTvgName(const QString &name)
+{
+  if(!name.isEmpty())
+    channelInfo->tvgName = name;
+}
+
+QString Channel::getTvgName()
+{
+  return channelInfo->tvgName;
+}
+
+
+/// Логотип канала
+void Channel::setTvgLogo(const QString &logo)
+{
+  if(!logo.isEmpty())
+    channelInfo->tvgLogo = logo;
+}
+
+QString Channel::getTvgLogo()
+{
+  return channelInfo->tvgLogo;
+}
+
+
+/// Смещение времени канала
+void Channel::setTvgShift(int shift)
+{
+  channelInfo->tvgShift = shift;
+}
+
+int Channel::getTvgShift()
+{
+  return channelInfo->tvgShift;
+}
+
+
+/// Наименование группы
+void Channel::setGroupName(const QString &grpName)
+{
+  if(!grpName.isEmpty())
+    channelInfo->groupName = grpName;
+}
+
+QString Channel::getGroupName()
+{
+  return channelInfo->groupName;
+}
+
+
+/// Канал без видео (радио)
+void Channel::setRadio(bool radio)
+{
+  channelInfo->radio = radio;
+}
+
+bool Channel::isRadio()
+{
+  return channelInfo->radio;
+}
+
+
+/// Канал имеет архив передач
+void Channel::setRecordable(bool rec)
+{
+  channelInfo->recordable = rec;
+}
+
+bool Channel::isRecordable()
+{
+  return channelInfo->recordable;
+}
+
+
+/// Содержит материал для взрослых
+void Channel::setCensored(bool censored)
+{
+  channelInfo->censored = censored;
+}
+
+bool Channel::isCensored()
+{
+  return channelInfo->censored;
+}
+
+
+/// Подвержен возрастному ограничению
+void Channel::setAgeRestricted(bool restrict)
+{
+  channelInfo->ageRestrict = restrict;
+}
+
+bool Channel::isAgeRestricted()
+{
+  return channelInfo->ageRestrict;
+}
+
+
+/// Использовать имя канала для привязки телепрограммы
+void Channel::setNameAsKey(bool useName)
+{
+  channelInfo->nameAsKey = useName;
+}
+
+bool Channel::isNameAsKey()
+{
+  return channelInfo->nameAsKey;
+}
+
+
+/// Монофонический звук
+void Channel::setMono(bool mono)
+{
+  channelInfo->mono = mono;
+}
+
+bool Channel::isMono()
+{
+  return channelInfo->mono;
+}
+
+
+/// Используемая звуковоая дорожка
+void Channel::setAudioTrack(const QString &audio)
+{
+  if(!audio.isEmpty())
+    channelInfo->audioTrack = audio;
+}
+
+QString Channel::getAudioTrack()
+{
+  return channelInfo->audioTrack;
+}
+
+
+/// Новый адрес списка каналов
+void Channel::setUrlM3u(const QString &m3u)
+{
+  if(!m3u.isEmpty())
+    channelInfo->urlM3u = m3u;
+}
+
+QString Channel::getUrlM3u()
+{
+  return channelInfo->urlM3u;
+}
+
+

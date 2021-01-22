@@ -3,6 +3,34 @@
 
 #include <QString>
 
+/////// Описание параметров тега #EXTVLCOPT
+struct VlcInfo
+{
+public:
+  QString userAgent;    // http-user-agent —— юзер-агент
+  QString httpReferrer; // http-referrer —— поставщик услуг
+
+  VlcInfo()
+  {
+    userAgent = "";
+    httpReferrer = "";
+  }
+};
+
+
+/////// Описание параметров тега #EXTGRP
+struct GroupInfo
+{
+public:
+  QString groupName;  // #EXTGRP: —— наименование группы каналов
+
+  GroupInfo()
+  {
+    groupName = "";
+  }
+};
+
+
 /////// Описание параметров тега #EXTM3U
 struct PlayListInfo
 {
@@ -37,15 +65,16 @@ struct ChannelInfo
 {
 public:
   int duration;     // :0 —— продолжительность (для ТВ — 0 или –1)
-  int uid;          // id —— уникальный идентификатор канала
+  int id;           // id —— уникальный идентификатор канала
   QString tvgId;    // tvg-id —— значение ChannelID в xml-файле EPG. Если этого тега нет, то производится поиск по тегу tvg-name.
   QString tvgName;  // tvg-name —— значение display-name в файле EPG (отображаемое имя канала)
   QString tvgLogo;  // tvg-logo —— имя файла логотипа без расширения (в формате .png)
-  QString tvgShift; // tvg-shift —— значение (в часах) изменение времени в файле EPG. Применятся для одного канала
+  int tvgShift;     // tvg-shift —— значение (в часах) изменение времени в файле EPG. Применятся для одного канала
   QString groupName;// group-name —— имя группы канала. Применяется для создания групп каналов
   bool radio;       // radio —— канал без видео (радио)
   QString audioTrack;// audio-track —— определяет аудио-дорожку (eng, rus)
   QString aspect;   // aspect-ratio —— соотношение сторон (16:9, 4:3, 3:2, 1:1)
+  bool recordable;  // recordable=false/true —— Наличие архива записей телепередач для данного канала
   bool censored;    // censored —— родительский контроль (0 или 1)
   bool ageRestrict; // agerestriction=0/1 —— Возрастное ограничение для канала
   QString urlM3u;   // url-m3u —— новый адрес списка каналов (использовать для массового изменения адреса в плеерах у абонентов).
@@ -53,14 +82,16 @@ public:
   QString crop;     // crop —— обрезка кадра WxH+X+Y (например, 690x550+15+10).
   bool mono;        // mono —— (0/1) моно-звук.
 
+  VlcInfo vlcInfo;
+
   ChannelInfo()
   {
     duration = 0;
-    uid = 0;
+    id = 0;
     tvgId = "";
     tvgName = "";
     tvgLogo = "";
-    tvgShift = "";
+    tvgShift = 0;
     groupName = "";
     radio = false;
     audioTrack = "";
@@ -71,35 +102,9 @@ public:
     nameAsKey = false;
     crop = "";
     mono = false;
+    recordable = false;
   }
 };
 
-
-/////// Описание параметров тега #EXTVLCOPT
-struct VlcInfo
-{
-public:
-  QString userAgent;    // http-user-agent —— юзер-агент
-  QString httpReferrer; // http-referrer —— поставщик услуг
-
-  VlcInfo()
-  {
-    userAgent = "";
-    httpReferrer = "";
-  }
-};
-
-
-/////// Описание параметров тега #EXTGRP
-struct GroupInfo
-{
-public:
-  QString groupName;  // #EXTGRP: —— наименование группы каналов
-
-  GroupInfo()
-  {
-    groupName = "";
-  }
-};
 
 #endif // DATATYPES_H
