@@ -6,6 +6,7 @@
 /////// Описание параметров тега #EXTM3U
 struct PlayListInfo
 {
+public:
   QString listName; // дополнительный тег #PLAYLIST позволяющий присвоить имя всему списку
   QString urlTvg;   //  url-xml либо url-tvg —— ссылка на ТВ-программу передач
   int tvgShift;     //  tvg-shift —— значение (в часах) изменение времени в файле EPG. Применяется для всех каналов
@@ -15,12 +16,26 @@ struct PlayListInfo
   QString crop;     //  crop —— обрезка W*H+X+Y (690*550+15+10)
   int refresh;      //  refresh —— период обновления
   bool autoload;    //  m3uautoload=1 —— включение автозагрузки файла телепрограммы.
+
+  PlayListInfo()
+  {
+    listName = "NoName";
+    urlTvg = "";
+    tvgShift = 0;
+    cache = 500;
+    deinterlace = 0;
+    aspect = "";
+    crop = "";
+    refresh = 0;
+    autoload = false;
+  }
 };
 
 
 /////// Описание параметров тега #EXTINF
 struct ChannelInfo
 {
+public:
   int duration;     // :0 —— продолжительность (для ТВ — 0 или –1)
   int uid;          // id —— уникальный идентификатор канала
   QString tvgId;    // tvg-id —— значение ChannelID в xml-файле EPG. Если этого тега нет, то производится поиск по тегу tvg-name.
@@ -37,6 +52,26 @@ struct ChannelInfo
   bool nameAsKey;   // nameaskey —— (0/1) использовать название канала в качестве ключевого поля для сохранения настроек, а не его адрес (использовать в динамически генерируемых списках).
   QString crop;     // crop —— обрезка кадра WxH+X+Y (например, 690x550+15+10).
   bool mono;        // mono —— (0/1) моно-звук.
+
+  ChannelInfo()
+  {
+    duration = 0;
+    uid = 0;
+    tvgId = "";
+    tvgName = "";
+    tvgLogo = "";
+    tvgShift = "";
+    groupName = "";
+    radio = false;
+    audioTrack = "";
+    aspect = "";
+    censored = false;
+    ageRestrict = false;
+    urlM3u = "";
+    nameAsKey = false;
+    crop = "";
+    mono = false;
+  }
 };
 
 
@@ -46,13 +81,25 @@ struct VlcInfo
 public:
   QString userAgent;    // http-user-agent —— юзер-агент
   QString httpReferrer; // http-referrer —— поставщик услуг
+
+  VlcInfo()
+  {
+    userAgent = "";
+    httpReferrer = "";
+  }
 };
 
 
 /////// Описание параметров тега #EXTGRP
 struct GroupInfo
 {
+public:
   QString groupName;  // #EXTGRP: —— наименование группы каналов
+
+  GroupInfo()
+  {
+    groupName = "";
+  }
 };
 
 #endif // DATATYPES_H
