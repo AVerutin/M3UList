@@ -58,8 +58,9 @@ void MainWindow::fillChannelsList()
     {
       QList<QStandardItem *> items;
       Channel ch = playList->getChannelAt(i);
-      items.append(new QStandardItem(QString::number(ch.getId())));
-      items.append(new QStandardItem(ch.getTvgName()));
+      int id = ch.getId();
+      items.append(new QStandardItem(QString::number(id)));
+      items.append(new QStandardItem(ch.getName()));
       items.append(new QStandardItem(ch.getGroupName()));
       items.append(new QStandardItem(ch.getUrl()));
 
@@ -73,7 +74,7 @@ void MainWindow::fillChannelsList()
   twChannels->setColumnWidth(0, 25);
   twChannels->setColumnWidth(1, 100);
   twChannels->setColumnWidth(2, 120);
-  twChannels->setColumnWidth(3, 250);
+  twChannels->setColumnWidth(3, 245);
 }
 
 
@@ -81,7 +82,20 @@ void MainWindow::fillChannelsList()
 void MainWindow::parsePlayList(const QString fileName)
 {
   parser = new Parser(fileName);
+  playList = new PlayList;
   *playList = parser->parse();
+
+  Cropping crop = playList->getCropping();
+  leCropWidth->setText(QString::number(crop.width));
+  leCropHeight->setText(QString::number(crop.height));
+  leCropTop->setText(QString::number(crop.top));
+  leCropLeft->setText(QString::number(crop.left));
+
+  AspectRatio aspect = playList->getAspect();
+  leAspectWidth->setText(QString::number(aspect.width));
+  leAspectHeight->setText(QString::number(aspect.height));
+
+  fillChannelsList();
 }
 
 
@@ -133,7 +147,6 @@ void MainWindow::createMenu()
   aAppClose->setShortcut(QKeySequence("ALT+X"));
   connect(aAppClose, &QAction::triggered, this, &MainWindow::slotAppClose);
 
-
   mnPlayList = new QMenu(this);
   mnPlayList->setTitle(tr("Список"));
   mnPlayList->setStatusTip(tr("Управление списком воспроизведения"));
@@ -152,15 +165,12 @@ void MainWindow::createMenu()
 /// Добавить новый канал
 void MainWindow::slotChannelAdd()
 {
-  //  QMessageBox::information(this, QString(tr("Внимание")),
-  //                              QString(tr("Добавить новый канал")),
-  //                              QMessageBox::Ok);
-
-  // Вызов окна для добавления канала
   formChannelEditor = new ChannelEditor(this);
   if(formChannelEditor->exec() == QDialog::Accepted)
     {
       *channel = formChannelEditor->getChannel();
+      int id = playList->getMaxId();
+      channel->setId(++id);
       playList->addChannel(*channel);
       setModified(true);
     }
@@ -576,8 +586,8 @@ void MainWindow::slotListOpen()
 
   parsePlayList(listFileName);
 
-  QString msg = tr("Открыт файл [%1]");
-  msg = msg.arg(listFileName);
+  QString msg = tr("Открыт файл [%1]. Получено каналов [%2]");
+  msg = msg.arg(listFileName, QString::number(playList->getChannelsCount()));
 
   stBar->showMessage(msg);
   setWindowTitle(tr("Список: ") + listFileName);

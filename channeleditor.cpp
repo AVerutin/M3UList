@@ -4,8 +4,12 @@
 ChannelEditor::ChannelEditor(QWidget *parent) : QDialog(parent, Qt::WindowTitleHint | Qt::WindowSystemMenuHint)
 {
   channel = new Channel;
+  sdb = new DataBase();
 
-  dbInit();
+  sdb->dbInit();
+  groups = sdb->getGroups();
+  audiotracks = sdb->getTracks();
+
   createCentralWidget();
 }
 
@@ -13,7 +17,7 @@ ChannelEditor::ChannelEditor(QWidget *parent) : QDialog(parent, Qt::WindowTitleH
 /// Деструктор по умолчанию
 ChannelEditor::~ChannelEditor()
 {
-  sdb.close();
+  sdb->dbClose();
 }
 
 
@@ -38,25 +42,12 @@ void ChannelEditor::setTitle(const QString title)
 /// Компоновка формы
 void ChannelEditor::createCentralWidget()
 {
-  // Инициализация списков
-  groups = new QStringList;
-  groups->append(tr("Общие"));
-  groups->append(tr("Информационные"));
-  groups->append(tr("Образовательные"));
-  groups->append(tr("Познавательные"));
-  groups->append(tr("Детские"));
-
-  audiotracks = new QStringList;
-  audiotracks->append(tr("RUS"));
-  audiotracks->append(tr("ENG"));
-  audiotracks->append(tr("UKR"));
-
   // Линия 1
   lblGroup = new QLabel(tr("Группа"));
   cbGroup = new QComboBox;
   lblGroup->setBuddy(cbGroup);
   cbGroup->clear();
-  cbGroup->addItems(*groups);
+  cbGroup->addItems(groups);
   pbManageGroups = new QPushButton(tr("Группы"));
   connect(pbManageGroups, &QPushButton::clicked, this, &ChannelEditor::slotManageGroups);
   line1 = new QHBoxLayout;
@@ -122,7 +113,7 @@ void ChannelEditor::createCentralWidget()
   // Линия 6
   lblAudio = new QLabel(tr("Звуковая дорожка"));
   cbAudio = new QComboBox;
-  cbAudio->addItems(*audiotracks);
+  cbAudio->addItems(audiotracks);
   lblAudio->setBuddy(cbAudio);
   pbManageAudio = new QPushButton(tr("Дорожки"));
   connect(pbManageAudio, &QPushButton::clicked, this, &ChannelEditor::slotManageTracks);
@@ -169,77 +160,12 @@ void ChannelEditor::createCentralWidget()
 }
 
 
-/// Инициализация подключения к базе данных
-void ChannelEditor::dbInit()
-{
-  sdb = QSqlDatabase::addDatabase("QSQLITE");
-  QString dbPath = QCoreApplication::applicationDirPath() + "/m3u.dat";
-  // QString dbPath = "E:\\Projects\\CPP\\m3u\\m3u.dat";
-  sdb.setDatabaseName(dbPath);
-
-  query = new QSqlQuery;
-
-//  sdb = QSqlDatabase::addDatabase("QSQLITE");
-//  sdb.setDatabaseName("m3u.dat");
-//  sdb.setHostName("localhost");
-//  sdb.setUserName("admin");
-//  sdb.setPassword("admin");
-
-  // Подключение к базе данных
-  if (!sdb.open()) {
-        qDebug() << sdb.lastError().text();
-  }
-
-  /////////// DDL query ///////////
-  QString str = "CREATE TABLE IF NOT EXISTS `my_table` ("
-          "`number` integer PRIMARY KEY NOT NULL, "
-          "`address` VARCHAR(255), "
-          "`age` integer"
-          ");";
-  bool b = query->exec(str);
-  if (!b) {
-      qDebug() << sdb.lastError().text();
-  }
-
-  /////////// DML query ///////////
-  str = "INSERT INTO `my_table` (`number`, `address`, `age`) "
-          "VALUES (%1, '%2', %3);";
-  str = str.arg("14")
-          .arg("hello world str.")
-          .arg("37");
-  b = query->exec(str);
-  if (!b) {
-      qDebug() << sdb.lastError().text();
-  }
-
-  /////////// Data query ///////////
-  if (!query->exec("SELECT * FROM `my_table`"))
-    {
-      qDebug() << sdb.lastError().text();
-  }
-  QSqlRecord rec = query->record();
-  int number = 0,
-          age = 0;
-  QString address = "";
-
-  while (query->next()) {
-      number = query->value(rec.indexOf("number")).toInt();
-      age = query->value(rec.indexOf("age")).toInt();
-      address = query->value(rec.indexOf("address")).toString();
-
-      qDebug() << "number is " << number
-               << ". age is " << age
-               << ". address" << address;
-  }
-  /////////
-}
-
-
 /// Обработка сигнала нажатия на кнопку OK
 void ChannelEditor::slotAccept()
 {
   channel->setGroupName(cbGroup->currentText());
   channel->setTvgName(leName->text());
+  channel->setName(leName->text());
   channel->setId(leId->text().toInt());
   channel->setDuration(leDuration->text().toInt());
   channel->setTvgLogo(leLogo->text());
@@ -254,28 +180,36 @@ void ChannelEditor::slotAccept()
   accept();
 }
 
+
 /// Обработка сигнала нажатия на кнопку Управление группами
 void ChannelEditor::slotManageGroups()
 {
+  QStringList edited;
+
   // Вызов окна со списком групп каналов
   GroupsEditor *grp = new GroupsEditor(this);
-  grp->editGroups(*groups);
+  grp->editGroups(groups);
   int res = grp->exec();
 
   if(res == QDialog::Accepted)
     {
-      *groups = grp->getGroups();
+      edited = grp->getGroups();
+
+      // Изменили состав групп, требуется удалить старый список и создать новый
+      sdb->clearGroups();
+      sdb->addGroups(edited);
+      groups = edited;
     }
-  else
+
 
   delete grp;
   grp = nullptr;
   // Конец вызова окна со списком групп каналов
 
-  if(groups->size() > 0)
+  if(groups.size() > 0)
     {
       cbGroup->clear();
-      cbGroup->addItems(*groups);
+      cbGroup->addItems(groups);
     }
 }
 
@@ -283,23 +217,30 @@ void ChannelEditor::slotManageGroups()
 /// Обработка сигнала нажатия на кнопку Управление звуковыми дорожками
 void ChannelEditor::slotManageTracks()
 {
+  QStringList edited;
+
   // Вызов окна со списком звуковых дорожек
   SoundTracks *snd = new SoundTracks(this);
-  snd->editSoundTracks(*audiotracks);
+  snd->editSoundTracks(audiotracks);
   QStringList st;
   int res = snd->exec();
   if(res == QDialog::Accepted)
     {
-      *audiotracks = snd->getSoundTracks();
+      edited = snd->getSoundTracks();
+
+      // Изменение списка звуковых дорожек
+      sdb->clearTracks();
+      sdb->addTracks(edited);
+      audiotracks = edited;
     }
 
   delete snd;
   snd = nullptr;
   // Конец вызова окна со списком звуковых дорожек
 
-  if(audiotracks->size() > 0)
+  if(audiotracks.size() > 0)
     {
       cbAudio->clear();
-      cbAudio->addItems(*audiotracks);
+      cbAudio->addItems(audiotracks);
     }
 }

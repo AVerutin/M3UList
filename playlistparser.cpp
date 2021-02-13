@@ -11,21 +11,24 @@ Parser::Parser(QString fileName)
     playlistName = fileName;
 }
 
+
+
+/// Анализ файла списка воспроизведения
 PlayList Parser::parse()
 {
   PlayList list;
-  Channel chan;
+  Channel *chan = nullptr;
 
   listFile = new QFile(playlistName);
-
   if ((listFile->exists()) && (listFile->open(QIODevice::ReadOnly)))
   {
       int channelPosition = 0;
-
       QString line = "";
       while(!listFile->atEnd())
       {
-          line = listFile->readLine();
+          line = listFile->readLine().trimmed();
+          if(line.isEmpty())
+            continue;
 
           /// Заголовок списка
           if(line.startsWith("#EXTM3U"))
@@ -48,30 +51,31 @@ PlayList Parser::parse()
           else if(line.startsWith("#EXTINF"))
             {
               // Описание свойств канала
-              channelPosition++;
               ChannelInfo chInfo = getChannelInfo(line);
+              if(chan==nullptr)
+                chan = new Channel;
 
-              chan.setDuration(chInfo.duration);
-              chan.setId(chInfo.id);
-              chan.setTvgId(chInfo.tvgId);
-              chan.setTvgName(chInfo.tvgName);
-              chan.setTvgLogo(chInfo.tvgLogo);
-              chan.setTvgShift(chInfo.tvgShift);
-              chan.setGroupName(chInfo.groupName);
-              chan.setRadio(chInfo.radio);
-              chan.setAudioTrack(chInfo.audioTrack);
-              chan.setAspectRatio(chInfo.aspect);
-              chan.setRecordable(chInfo.recordable);
-              chan.setCensored(chInfo.recordable);
-              chan.setAgeRestricted(chInfo.ageRestrict);
-              chan.setUrlM3u(chInfo.urlM3u);
-              chan.setNameAsKey(chInfo.nameAsKey);
-              chan.setCrop(chInfo.crop);
-              chan.setMono(chInfo.mono);
-              chan.setOrder(channelPosition);
-
-              // Поиск параметров канала при помощи регулярных выражений
-
+              channelPosition++;
+              chan->setDuration(chInfo.duration);
+              chan->setTvgId(chInfo.tvgId);
+              chan->setTvgName(chInfo.tvgName);
+              chan->setName(chInfo.name);
+              chan->setTvgLogo(chInfo.tvgLogo);
+              chan->setTvgShift(chInfo.tvgShift);
+              chan->setGroupName(chInfo.groupName);
+              chan->setRadio(chInfo.radio);
+              chan->setAudioTrack(chInfo.audioTrack);
+              chan->setAspectRatio(chInfo.aspect);
+              chan->setRecordable(chInfo.recordable);
+              chan->setCensored(chInfo.recordable);
+              chan->setAgeRestricted(chInfo.ageRestrict);
+              chan->setUrlM3u(chInfo.urlM3u);
+              chan->setNameAsKey(chInfo.nameAsKey);
+              chan->setCrop(chInfo.crop);
+              chan->setMono(chInfo.mono);
+              chan->setOrder(channelPosition);
+              chan->setId(channelPosition);
+//              chan->setNumber(channelPosition);
             }
 
           /// Наименование списка
@@ -80,20 +84,38 @@ PlayList Parser::parse()
               list.setListName(getListName(line));
             }
 
+          /// Наименование группы
+          else if(line.startsWith("#EXTGRP"))
+            {
+              if(chan==nullptr)
+                chan = new Channel;
+
+              chan->setGroupName(getGroupName(line));
+            }
+
           /// Дополнительные параметры для VLC
           else if(line.startsWith("#EXTVLCOPT"))
             {
+              if(chan==nullptr)
+                chan = new Channel;
+
               VlcInfo vlc = getVlcOpt(line);
-              chan.setUserAgent(vlc.userAgent);
-              chan.setHttpReffer(vlc.httpReferrer);
+              chan->setUserAgent(vlc.userAgent);
+              chan->setHttpReffer(vlc.httpReferrer);
             }
 
           /// Ссылка на источник канал
-          else
+          else if(line.startsWith("http://") || line.startsWith("https://"))
             {
               // Ссылка на источник канала
-              chan.getUrl() = line;
-              list.addChannel(chan);
+              if(chan==nullptr)
+                chan = new Channel;
+
+              chan->setUrl(line);
+              list.addChannel(*chan);
+
+              delete chan;
+              chan = nullptr;
             }
         }
 
@@ -104,15 +126,17 @@ PlayList Parser::parse()
 }
 
 
+
 /// Разбор параметров заголовка списка воспроизведения
-PlayListInfo Parser::getListTitle(QString listTitle)
+PlayListInfo Parser::getListTitle(const QString &listTitle)
 {
   PlayListInfo result;
   if(!listTitle.isEmpty())
     {
       // Анализируем строку на наличие параметров списка
+      qDebug() << listTitle;
 
-      // url-tvg="..." или url-xml="..."
+      // url-tvg="..." или url-xml="..." url-tvg=\"(.+?)\"
       QRegExp re("url-tvg=\"(.*)\"");
       re.setMinimal(true);
       int lastPos = 0;
@@ -134,7 +158,7 @@ PlayListInfo Parser::getListTitle(QString listTitle)
         }
 
       // cache="..."
-      re = QRegExp("cache=\"(.*)\"");
+      re = QRegExp("cache=\"*(\\d*)\"*");
       lastPos = 0;
       while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
         {
@@ -144,7 +168,7 @@ PlayListInfo Parser::getListTitle(QString listTitle)
         }
 
       // deinterlace="..."
-      re = QRegExp("deinterlace=\"(.*)\"");
+      re = QRegExp("deinterlace=\"*(\\d*)?\"*");
       lastPos = 0;
       while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
         {
@@ -154,7 +178,7 @@ PlayListInfo Parser::getListTitle(QString listTitle)
         }
 
       // aspect-ratio="..."
-      re = QRegExp("aspect-ratio=\"(.*)\"");
+      re = QRegExp("aspect-ratio=\"*(\\d+:\\d+)?\"*");
       lastPos = 0;
       while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
         {
@@ -164,7 +188,7 @@ PlayListInfo Parser::getListTitle(QString listTitle)
         }
 
       // crop="..."
-      re = QRegExp("crop=\"(.*)\"");
+      re = QRegExp("crop=\"(.*)\"\\s");
       lastPos = 0;
       while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
         {
@@ -174,7 +198,7 @@ PlayListInfo Parser::getListTitle(QString listTitle)
         }
 
       // refresh="..."
-      re = QRegExp("refresh=\"(.*)\"");
+      re = QRegExp("refresh=\"*(\\d*)?\"*");
       lastPos = 0;
       while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
         {
@@ -184,7 +208,7 @@ PlayListInfo Parser::getListTitle(QString listTitle)
         }
 
       // m3uautoload=1
-      re = QRegExp("m3uautoload=\"(.*)\"");
+      re = QRegExp("m3uautoload=\"*(\\d?)?\"*");
       lastPos = 0;
       while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
         {
@@ -194,7 +218,7 @@ PlayListInfo Parser::getListTitle(QString listTitle)
         }
 
       // tvg-shift=(...-2, -1, 0, +1, +2, ...)
-      re = QRegExp("tvg-shift=\"(.*)\"");
+      re = QRegExp("tvg-shift=\"*([+|-]?\\d?)?\"*");
       lastPos = 0;
       while((lastPos = re.indexIn(listTitle, lastPos)) != -1)
         {
@@ -208,8 +232,27 @@ PlayListInfo Parser::getListTitle(QString listTitle)
 }
 
 
+
+/// Разбор строки с наименованием группы
+QString Parser::getGroupName(const QString &grpName)
+{
+  QString res;
+  QRegExp re("#EXTGRP:(.*)");
+  int lastPos = 0;
+
+  while((lastPos = re.indexIn(grpName, lastPos)) != -1)
+    {
+      lastPos += re.matchedLength();
+      res = re.cap(1);
+    }
+
+  return res;
+}
+
+
+
 /// Разбор строки с наименованием списка воспроизведения
-QString Parser::getListName(QString name)
+QString Parser::getListName(const QString &name)
 {
   QString res;
   QRegExp re("#PLAYLIST:(.*)");
@@ -225,8 +268,9 @@ QString Parser::getListName(QString name)
 }
 
 
+
 /// Разбор строки с параметрами VLC
-VlcInfo Parser::getVlcOpt(QString vlc)
+VlcInfo Parser::getVlcOpt(const QString &vlc)
 {
   VlcInfo res;
   QRegExp re("#EXTVLCOPT:http-user-agent=(.*)");
@@ -251,8 +295,9 @@ VlcInfo Parser::getVlcOpt(QString vlc)
 }
 
 
+
 /// Разбор строки с параметрами канала
-ChannelInfo Parser::getChannelInfo(QString chan)
+ChannelInfo Parser::getChannelInfo(const QString &chan)
 {
   ChannelInfo res;
   if(!chan.isEmpty())
@@ -260,25 +305,183 @@ ChannelInfo Parser::getChannelInfo(QString chan)
       // Анализируем строку на наличие параметров списка
 
       // #EXTINF:...
-      QRegExp re("#EXTINF:([-|\\d]*)\\b");
-
+      QRegExp re("#EXTINF:([+,-]?[0-9]+)");
       int lastPos = 0;
       while((lastPos = re.indexIn(chan, lastPos)) != -1)
         {
           lastPos += re.matchedLength();
-          QString id = re.cap(1);
-          res.duration = id.toInt();
+          QString val = re.cap(1);
+          res.duration = val.toInt();
         }
 
       // tvg-id="..."
-      re = QRegExp("tvg-id=\"(.*)\"");
-
+      re = QRegExp("tvg-id=(\"|')([^\"']+)");
       lastPos = 0;
       while((lastPos = re.indexIn(chan, lastPos)) != -1)
         {
           lastPos += re.matchedLength();
-          QString id = re.cap(1);
-          res.id = id.toInt();
+          QString val = re.cap(2);
+          res.tvgId = val;
+        }
+
+      // tvg-name="..."
+      re = QRegExp("tvg-name=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.tvgName = val;
+        }
+
+      // tvg-logo="..."
+      re = QRegExp("tvg-logo=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.tvgLogo = val;
+        }
+
+      // tvg-epg="..."
+      re = QRegExp("tvg-epg=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.tvgEpg = val;
+        }
+
+      // tvg-shift="..."
+      re = QRegExp("tvg-shift=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.tvgShift = val.toInt();
+        }
+
+      // group-title="..."
+      re = QRegExp("group-title=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.groupName = val;
+        }
+
+      // radio="..."
+      re = QRegExp("radio=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.radio = val.toInt();
+        }
+
+      // aspect-ratio="..."
+      re = QRegExp("aspect-ratio=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.aspect = val;
+        }
+
+      // audio-track="..."
+      re = QRegExp("audio-track=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.audioTrack = val;
+        }
+
+      // recordable="..."
+      re = QRegExp("recordable=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.recordable = val=="true" ? true : false;
+        }
+
+      // censored="..."
+      re = QRegExp("censored=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.censored = val.toInt();
+        }
+
+      // agerestriction="..."
+      re = QRegExp("agerestriction=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.ageRestrict = val.toInt();
+        }
+
+      // url-m3u="..."
+      re = QRegExp("url-m3u=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.urlM3u = val;
+        }
+
+      // nameaskey="..."
+      re = QRegExp("nameaskey=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.nameAsKey = val.toInt();
+        }
+
+      // crop="..."
+      re = QRegExp("crop=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.crop = val;
+        }
+
+      // mono="..."
+      re = QRegExp("mono=(\"|')([^\"']+)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(2);
+          res.mono = val.toInt();
+        }
+
+      // Название канала после запятой
+      re = QRegExp(",([^\n]*)");
+      lastPos = 0;
+      while((lastPos = re.indexIn(chan, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString val = re.cap(1);
+          res.name = val;
         }
     }
 

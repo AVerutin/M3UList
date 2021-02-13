@@ -21,6 +21,7 @@ PlayList::PlayList()
 
   channels = new QList<Channel>;
   channelUid = 0;
+  logger = new Logger();
 }
 
 
@@ -39,12 +40,14 @@ PlayList &PlayList::operator=(const PlayList &source)
   cropHeight = source.cropHeight;
   cropTop = source.cropTop;
   cropLeft = source.cropLeft;
+  crop = source.crop;
   aspectWidth = source.aspectWidth;
   aspectHeight = source.aspectHeight;
+  aspect = source.aspect;
   channels = new QList<Channel>;
 
   // получение списка каналов
-  for(QList<Channel>::iterator it=channels->begin(); it!=channels->end(); it++)
+  for(QList<Channel>::iterator it=source.channels->begin(); it!=source.channels->end(); it++)
     {
       channels->append(*it);
     }
@@ -223,6 +226,49 @@ QString PlayList::getCrop()
   return crop;
 }
 
+Cropping PlayList::getCropping()
+{
+  Cropping res;
+  if(!crop.isEmpty())
+    {
+      // С помощью регулярных выражений
+      QStringList cr;
+      QRegExp re("([0-9]+)");
+      int lastPos = 0;
+      while((lastPos = re.indexIn(crop, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString w = re.cap(0);
+          cr.append(w);
+         }
+
+      switch(cr.size())
+        {
+        case 0 : break;
+        case 1:
+          res.width = cr.at(0).toInt();
+          break;
+        case 2:
+          res.width = cr.at(0).toInt();
+          res.height = cr.at(1).toInt();
+          break;
+        case 3:
+          res.width = cr.at(0).toInt();
+          res.height = cr.at(1).toInt();
+          res.top = cr.at(2).toInt();
+          break;
+        case 4:
+          res.width = cr.at(0).toInt();
+          res.height = cr.at(1).toInt();
+          res.top = cr.at(2).toInt();
+          res.left = cr.at(3).toInt();
+          break;
+        }
+    }
+
+  return res;
+}
+
 
 /// Установить соотношение сторон
 void PlayList::setAspectRatio(int w, int h)
@@ -270,23 +316,64 @@ QString PlayList::getAspectRatio()
   return aspect;
 }
 
+AspectRatio PlayList::getAspect()
+{
+  AspectRatio res;
+  if(!aspect.isEmpty())
+    {
+      QString unitName = typeid(this).name();
+      logger->info(aspect, unitName);
+      // С помощью регулярных выражений
+      QStringList cr;
+      QRegExp re("([0-9]+)");
+      int lastPos = 0;
+      while((lastPos = re.indexIn(aspect, lastPos)) != -1)
+        {
+          lastPos += re.matchedLength();
+          QString w = re.cap(0);
+          cr.append(w);
+         }
+
+      switch(cr.size())
+        {
+        case 0 : break;
+        case 1:
+          res.width = cr.at(0).toInt();
+          break;
+        case 2:
+          res.width = cr.at(0).toInt();
+          res.height = cr.at(1).toInt();
+          break;
+        }
+    }
+
+  return res;
+}
+
 
 /// Добавить канал в список каналов
 int PlayList::addChannel(const Channel &ch)
 {
-  int uid = 1;
-  QList<Channel>::iterator it;
-  for(it=channels->begin(); it!=channels->end(); it++)
-    {
-      if(it->getId() > uid)
-        uid = it->getId();
-    }
-
   Channel item = ch;
-  item.setId(uid);
   channels->append(item);
 
-  return uid;
+  return item.getId();
+}
+
+
+
+/// Получить максимальный номер канала
+int PlayList::getMaxId()
+{
+  int res = -1;
+  for(QList<Channel>::iterator it=channels->begin(); it!=channels->end(); it++)
+    {
+      int id = it->getId();
+      if(id>res)
+        res = id;
+    }
+
+  return res;
 }
 
 

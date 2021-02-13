@@ -4,6 +4,7 @@
 #include <QString>
 #include <QFile>
 #include <QRegExp>
+#include <QDebug>
 // #include <QList>
 
 #include "playlist.h"
@@ -18,15 +19,15 @@ public:
   PlayList parse();
 
 private:
-  PlayList *playList;
   Channel *channel;
   QFile *listFile;
   QString playlistName;
 
-  PlayListInfo getListTitle(QString);
-  QString getListName(QString);
-  VlcInfo getVlcOpt(QString);
-  ChannelInfo getChannelInfo(QString);
+  PlayListInfo getListTitle(const QString &);
+  QString getGroupName(const QString &);
+  QString getListName(const QString &);
+  VlcInfo getVlcOpt(const QString &);
+  ChannelInfo getChannelInfo(const QString &);
 };
 
 #endif // PLAYLISTPARSER_H

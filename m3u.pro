@@ -11,7 +11,9 @@ CONFIG += c++11
 SOURCES += \
     channel.cpp \
     channeleditor.cpp \
+    database.cpp \
     groupseditor.cpp \
+    logger.cpp \
     main.cpp \
     mainwindow.cpp \
     playlist.cpp \
@@ -21,8 +23,10 @@ SOURCES += \
 HEADERS += \
     channel.h \
     channeleditor.h \
+    database.h \
     datatypes.h \
     groupseditor.h \
+    logger.h \
     mainwindow.h \
     playlist.h \
     playlistparser.h \

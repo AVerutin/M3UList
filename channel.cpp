@@ -159,21 +159,31 @@ void Channel::setAspectRatio(const QString &aspect)
 /// Перегрузка оператора присваивания
 Channel &Channel::operator=(const Channel &source)
 {
+  channelInfo->name = source.channelInfo->name;
+  channelInfo->position = source.channelInfo->position;
   channelInfo->duration = source.channelInfo->duration;
+  channelInfo->id = source.channelInfo->id;
   channelInfo->tvgId = source.channelInfo->tvgId;
   channelInfo->tvgName = source.channelInfo->tvgName;
   channelInfo->tvgLogo = source.channelInfo->tvgLogo;
+  channelInfo->tvgEpg = source.channelInfo->tvgEpg;
   channelInfo->tvgShift = source.channelInfo->tvgShift;
   channelInfo->groupName = source.channelInfo->groupName;
   channelInfo->radio = source.channelInfo->radio;
   channelInfo->audioTrack = source.channelInfo->audioTrack;
+  channelInfo->aspect = source.channelInfo->aspect;
   channelInfo->censored = source.channelInfo->censored;
   channelInfo->recordable = source.channelInfo->recordable;
   channelInfo->ageRestrict = source.channelInfo->ageRestrict;
+  channelInfo->urlM3u = source.channelInfo->urlM3u;
   channelInfo->nameAsKey = source.channelInfo->nameAsKey;
+  channelInfo->crop = source.channelInfo->crop;
+  channelInfo->mono = source.channelInfo->mono;
+  channelInfo->source = source.channelInfo->source;
   url = source.url;
   aspectRatio = source.aspectRatio;
   crop = source.crop;
+  order = source.order;
 
   return *this;
 }
@@ -261,7 +271,7 @@ int Channel::getDuration()
 /// Идентификатор канала
 void Channel::setId(int id)
 {
-  channelInfo->id = id;
+  channelInfo->id = id>0 ? id : 0;
 }
 
 int Channel::getId()
@@ -426,9 +436,23 @@ void Channel::setUrlM3u(const QString &m3u)
     channelInfo->urlM3u = m3u;
 }
 
+
 QString Channel::getUrlM3u()
 {
   return channelInfo->urlM3u;
+}
+
+
+/// Отображаемое наименование канала
+void Channel::setName(const QString & chName)
+{
+  if(!chName.isEmpty())
+    channelInfo->name = chName;
+}
+
+QString Channel::getName()
+{
+  return channelInfo->name;
 }
 
 

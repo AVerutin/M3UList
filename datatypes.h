@@ -35,7 +35,8 @@ public:
 struct PlayListInfo
 {
 public:
-  QString listName; // дополнительный тег #PLAYLIST позволяющий присвоить имя всему списку
+  int listId;       //  идентификатор списка воспроизведенияы
+  QString listName; //  дополнительный тег #PLAYLIST позволяющий присвоить имя всему списку
   QString urlTvg;   //  url-xml либо url-tvg —— ссылка на ТВ-программу передач
   int tvgShift;     //  tvg-shift —— значение (в часах) изменение времени в файле EPG. Применяется для всех каналов
   int cache;        //  cache —— время кеширования
@@ -64,13 +65,16 @@ public:
 struct ChannelInfo
 {
 public:
+  QString name;     // Отображаемое имя канала
+  int position;     // pos —— номер позиции канала в списке
   int duration;     // :0 —— продолжительность (для ТВ — 0 или –1)
   int id;           // id —— уникальный идентификатор канала
   QString tvgId;    // tvg-id —— значение ChannelID в xml-файле EPG. Если этого тега нет, то производится поиск по тегу tvg-name.
   QString tvgName;  // tvg-name —— значение display-name в файле EPG (отображаемое имя канала)
   QString tvgLogo;  // tvg-logo —— имя файла логотипа без расширения (в формате .png)
+  QString tvgEpg;   // tvg-epg —— ссылка на программу передач
   int tvgShift;     // tvg-shift —— значение (в часах) изменение времени в файле EPG. Применятся для одного канала
-  QString groupName;// group-name —— имя группы канала. Применяется для создания групп каналов
+  QString groupName;// group-title —— имя группы канала. Применяется для создания групп каналов
   bool radio;       // radio —— канал без видео (радио)
   QString audioTrack;// audio-track —— определяет аудио-дорожку (eng, rus)
   QString aspect;   // aspect-ratio —— соотношение сторон (16:9, 4:3, 3:2, 1:1)
@@ -81,6 +85,7 @@ public:
   bool nameAsKey;   // nameaskey —— (0/1) использовать название канала в качестве ключевого поля для сохранения настроек, а не его адрес (использовать в динамически генерируемых списках).
   QString crop;     // crop —— обрезка кадра WxH+X+Y (например, 690x550+15+10).
   bool mono;        // mono —— (0/1) моно-звук.
+  QString source;   // url —— ссылка на источник потока
 
   VlcInfo vlcInfo;
 
@@ -106,5 +111,38 @@ public:
   }
 };
 
+
+/// Обрезка кадра
+struct Cropping
+{
+public:
+  int width;  // Ширина обрезки
+  int height; // Высота обрезки
+  int top;    // Обрезка сверху
+  int left;   // Обрезка слева
+
+  Cropping()
+  {
+    width = 0;
+    height = 0;
+    top = 0;
+    left = 0;
+  }
+};
+
+
+/// Соотношение сторон
+struct AspectRatio
+{
+public:
+  int width;  // Ширина кадра
+  int height; // Высота кадра
+
+  AspectRatio()
+  {
+    width = 0;
+    height = 0;
+  }
+};
 
 #endif // DATATYPES_H

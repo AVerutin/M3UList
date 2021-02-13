@@ -5,11 +5,11 @@
 
 #include <QDialog>
 #include <QtWidgets>
-#include <QtSql>
 
 #include "channel.h"
 #include "soundtracks.h"
 #include "groupseditor.h"
+#include "database.h"
 
 class ChannelEditor : public QDialog
 {
@@ -24,8 +24,9 @@ public:
 private:
   QString winTitle;
   Channel *channel;
-  QStringList *groups;
-  QStringList *audiotracks;
+  QStringList groups;
+  QStringList audiotracks;
+  DataBase *sdb;
 
   // Элементы формы
   QVBoxLayout *mainLayout;
@@ -77,13 +78,7 @@ private:
   QPushButton *pbCancel;
   QSpacerItem *hSpacer2;
 
-  QSqlDatabase sdb;
-  QSqlQuery *query;
-  QStringList groupsList;
-  QStringList tracksList;
-
   void createCentralWidget();
-  void dbInit();
 
 private slots:
   void slotAccept();

@@ -4,6 +4,7 @@
 #include <QList>
 
 #include "channel.h"
+#include "logger.h"
 
 class PlayList
 {
@@ -19,12 +20,15 @@ public:
   void setCropLeft(int l);
   void setCrop(const QString &);
   QString getCrop();
+  Cropping getCropping();
   void setAspectRatio(int w, int h);
   void setAspectRatioWidth(int w);
   void setAspectRatioHeight(int h);
   void setAspectRatio(const QString &);
   QString getAspectRatio();
+  AspectRatio getAspect();
   int addChannel(const Channel &);
+  int getMaxId();
   Channel editChannel(const Channel &);
   bool deleteChannelAt(int);
   bool deleteChannel(int);
@@ -47,6 +51,7 @@ public:
   int getTvgShift();
 
 private:
+  Logger *logger;
   // Свойства класса
   QString listName;
   QString urlTvg;

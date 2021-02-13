@@ -58,6 +58,8 @@ public:
   QString getAudioTrack();
   void setUrlM3u(const QString &);
   QString getUrlM3u();
+  void setName(const QString &);
+  QString getName();
 
   Channel &operator=(const Channel &);
 
