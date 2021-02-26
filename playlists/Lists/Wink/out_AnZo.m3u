@@ -1,0 +1,83 @@
+#EXTM3U  $BannersPath=""  $ExtFilter="AnZo"  $BorpasFileFormat="1"  $UpdateID="tvs1595862563" 
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортkkhl_d0httpswwwvokatvbacba19c86e845d3bb668411440e0ec000" ,КХЛ
+https://www.voka.tv/bacba19c-86e8-45d3-bb66-8411440e0ec0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортkkhl hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpckhlhdq0pas000" ,КХЛ HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=khlhd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортkkhl hd_d0httpswwwvokatv999edfe870d34510b10cb997def655ad00" ,КХЛ HD
+https://www.voka.tv/999edfe8-70d3-4510-b10c-b997def655ad
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортbelarus` 5 hd_d0httpswwwvokatvd291ec13b1ee4409aabfdaab9cbeb9e000" ,Беларусь 5 HD
+https://www.voka.tv/d291ec13-b1ee-4409-aabf-daab9cbeb9e0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmatchtvhdq0pas000" ,Матч! HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=matchtvhd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! arena hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmatcharenahdq0pas000" ,Матч! АРЕНА HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=matcharenahd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! igra hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmatchgamehdq0pas000" ,Матч! ИГРА HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=matchgamehd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! planeta_d0httpswwwvokatv570743eb2d7f4aa9b5f5e6d7ba6a60ac00" ,Матч! Планета
+https://www.voka.tv/570743eb-2d7f-4aa9-b5f5-e6d7ba6a60ac
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! prem`er hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmatchpremierhdq0pas000" ,Матч! Премьер HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=matchpremierhd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! prem`er hd_d0httpsplaymegafontvoutuv1video6348406mpd00" ,Матч! Премьер HD
+https://play.megafon.tv/out/u/v1-video-6348406.mpd
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! strana_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmatchoursportq0pas000" ,Матч! Страна
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=matchoursport&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! futbol 1 hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmatchfootball1hdq0pas000" ,Матч! Футбол 1 HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=matchfootball1hd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! futbol 2 hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmatchfootball2hdq0pas000" ,Матч! Футбол 2 HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=matchfootball2hd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Спорт"  group-title="Спорт"  update-code="tvs1595862563Спортmatch! futbol 3 hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmatchfootball3hdq0pas000" ,Матч! Футбол 3 HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=matchfootball3hd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеmoskva. doverie_d0httprtmoshtlivecdnngenixnethlschr04ottdoverievariantm3u800" ,Москва. Доверие
+http://rt-mos-htlive.cdn.ngenix.net/hls/CH_R04_OTT_DOVERIE/variant.m3u8
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеmoskva. doverie_d0httpnvdomatvnet216moskvadoveriehtml00" ,Москва. Доверие
+http://nv.domatv.net/216-moskva-doverie.html
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеdomashnij_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcdomq0pas000" ,Домашний
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=dom&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеzvezda_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpczvezdaq0pas000" ,Звезда
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=zvezda&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеmir_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmirq0pas000" ,Мир
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=mir&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеmoskva 24_d0httpsstrmyandexrukalmsk24supresmsk24supres02011720pjsonindexv1a1m3u800" ,Москва 24
+https://strm.yandex.ru/kal/msk24_supres/msk24_supres0_2011_720p.json/index-v1-a1.m3u8
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеmoskva 24_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcmoscow24q0pas000" ,Москва 24
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=moscow24&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеntv hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcntvq0pas000" ,НТВ HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=ntv&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеotr_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcotrq0pas000" ,ОТР
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=otr&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеpervyj kanal hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcperviyhdq0pas000" ,Первый канал HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=perviyhd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеpyatyj kanal_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpckanal5q0pas000" ,Пятый канал
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=kanal5&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеren tv hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcrenq0pas000" ,РЕН ТВ HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=ren&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеrossiya 1 hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcrussiahdq0pas000" ,Россия 1 HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=russiahd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеrossiya 24_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcrussia24q0pas000" ,Россия 24
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=russia24&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеrossiya 24_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcrussia24q0pas000" ,Россия 24
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=russia24&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеrossiya k_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpckulturaq0pas000" ,Россия К
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=kultura&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеsts_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcstsq0pas000" ,СТС
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=sts&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеsts hd_d0httpstvhdstshd00" ,СТС HD
+https://tv+hd.stshd
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеtv czentr_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpctvcq0pas000" ,ТВ Центр
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=tvc&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Общественные"  group-title="Общественные"  update-code="tvs1595862563Общественныеtnt hd_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpctnthdq0pas000" ,ТНТ HD
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=tnthd&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеe tv_00httpcdn01bonustvru80gsltracksv1a1monom3u800" ,E TV
+http://cdn-01.bonus-tv.ru:80/gsl/tracks-v1a1/mono.m3u8
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеe tv_00httpsstrmyandexrukal60fps60fps0169720pjsonindexv1a1m3u800" ,E TV
+https://strm.yandex.ru/kal/60fps/60fps0_169_720p.json/index-v1-a1.m3u8
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеpyatnicza!_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcfridayq0pas000" ,Пятница!
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=friday&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеsovetskoe kino_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpcsovmovq0pas000" ,Советское кино
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=sovmov&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеsts love_00httpswwwtvplusonlinerugetsignedurlcdnv4phpcstsloveq0pas000" ,СТС Love
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=stslove&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеtv 3_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpctv3q0pas000" ,ТВ 3
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=tv3&q=0&p=a&s=0
+#EXTINF:-1 tvs-group="Развлекательные"  group-title="Развлекательные"  update-code="tvs1595862563Развлекательныеche_d0httpswwwtvplusonlinerugetsignedurlcdnv4phpccheq0pas000" ,Че
+https://www.tvplusonline.ru/getsignedurlcdnv4.php?c=che&q=0&p=a&s=0

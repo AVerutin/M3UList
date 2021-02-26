@@ -1,0 +1,4 @@
+#EXTM3U url-tvg="http://epg.it/epg.xml.gz" cache="800" aspect-ratio="16*9" crop="1280*720+10+15" m3uautoload="1"
+#PLAYLIST:MTS List
+Channel ID = 0
+Channel ID = 0
