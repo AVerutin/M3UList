@@ -53,8 +53,9 @@ void MainWindow::setModified(bool mod)
 /// Наполнение таблицы списком каналов
 void MainWindow::fillChannelsList()
 {
+  int chCount = playList->getChannelsCount();
   model->clear();
-  for(int i=0; i<playList->getChannelsCount(); i++)
+  for(int i=0; i<chCount; i++)
     {
       QList<QStandardItem *> items;
       Channel ch = playList->getChannelAt(i);
@@ -584,9 +585,16 @@ void MainWindow::slotListOpen()
   if(listFileName.isEmpty())
     return;
 
+  QString msg = tr("Читаем файл [%1]...");
+  msg = msg.arg(listFileName);
+  stBar->showMessage(msg);
+
   parsePlayList(listFileName);
 
-  QString msg = tr("Открыт файл [%1]. Получено каналов [%2]");
+  // Вывод данных об открытом списке
+  leListName->setText(playList->getListName());
+
+  msg = tr("Открыт файл [%1]. Получено каналов [%2]");
   msg = msg.arg(listFileName, QString::number(playList->getChannelsCount()));
 
   stBar->showMessage(msg);

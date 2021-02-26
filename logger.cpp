@@ -65,7 +65,7 @@ void Logger::info(const QString &info, const QString &sender)
           QDate today = QDate::currentDate();
           QTime time = QTime::currentTime();
           QString now = today.toString("dd-MM-yyyy") + " " + time.toString("HH:mm:ss.zzz");
-          out <<"[" <<now <<"]" <<"{ INFO " <<sender <<"}: " << info <<"\n";
+          out <<"[" <<now <<"]" <<"{ INF " <<sender <<" }: " << info <<"\n";
         }
 
       logFile->close();
@@ -84,7 +84,7 @@ void Logger::warn(const QString &warn, const QString &sender)
           QDate today = QDate::currentDate();
           QTime time = QTime::currentTime();
           QString now = today.toString("dd-MM-yyyy") + " " + time.toString("HH:mm:ss.zzz");
-          out <<"[" <<now <<"]" <<"{ WARN " <<sender <<"}: " << warn <<"\n";
+          out <<"[" <<now <<"]" <<"{ WRN " <<sender <<" }: " << warn <<"\n";
         }
 
       logFile->close();
@@ -103,7 +103,7 @@ void Logger::error(const QString &error, const QString &sender)
           QDate today = QDate::currentDate();
           QTime time = QTime::currentTime();
           QString now = today.toString("dd-MM-yyyy") + " " + time.toString("HH:mm:ss.zzz");
-          out <<"[" <<now <<"]" <<"{ ERROR " <<sender <<"}: " << error <<"\n";
+          out <<"[" <<now <<"]" <<"{ ERR " <<sender <<" }: " << error <<"\n";
         }
 
       logFile->close();

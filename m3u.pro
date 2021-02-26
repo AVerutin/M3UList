@@ -12,12 +12,14 @@ SOURCES += \
     channel.cpp \
     channeleditor.cpp \
     database.cpp \
+    group.cpp \
     groupseditor.cpp \
     logger.cpp \
     main.cpp \
     mainwindow.cpp \
     playlist.cpp \
     playlistparser.cpp \
+    soundtrack.cpp \
     soundtracks.cpp
 
 HEADERS += \
@@ -25,11 +27,13 @@ HEADERS += \
     channeleditor.h \
     database.h \
     datatypes.h \
+    group.h \
     groupseditor.h \
     logger.h \
     mainwindow.h \
     playlist.h \
     playlistparser.h \
+    soundtrack.h \
     soundtracks.h
 
 # Default rules for deployment.
@@ -47,5 +51,8 @@ win32 {
 }
 
 FORMS +=
+
+DISTFILES += \
+    description.txt
 
 

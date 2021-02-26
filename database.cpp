@@ -11,15 +11,15 @@ DataBase::DataBase()
 void DataBase::dbInit()
 {
   sdb = QSqlDatabase::addDatabase("QSQLITE");
+  //  sdb.setDatabaseName("m3u.dat");
+  //  sdb.setHostName("localhost");
+  //  sdb.setUserName("admin");
+  //  sdb.setPassword("admin");
+
   QString dbPath = QCoreApplication::applicationDirPath() + "/m3u.dat";
   sdb.setDatabaseName(dbPath);
   query = new QSqlQuery;
 
-//  sdb = QSqlDatabase::addDatabase("QSQLITE");
-//  sdb.setDatabaseName("m3u.dat");
-//  sdb.setHostName("localhost");
-//  sdb.setUserName("admin");
-//  sdb.setPassword("admin");
 
   // Подключение к базе данных
   if (!sdb.open()) {
@@ -447,6 +447,74 @@ bool DataBase::addPlaylist(const PlayListInfo &pl)
         }
     }
 
+  return result;
+}
+
+
+/// Получить список категорий из базы данных
+QList<Group> DataBase::getGroupsList()
+{
+  QList<Group> result;
+  throw("Not implement method");
+  return result;
+}
+
+
+/// Добавить новую группу в базу данных
+void DataBase::addGroupToList(const Group &)
+{
+  throw("Not implement method");
+}
+
+
+/// Редактировать группу в базе данных по уникальному идентификатору
+bool DataBase::editGroupInList(int, const Group &)
+{
+  bool result = false;
+  throw("Not implement method");
+  return result;
+}
+
+
+/// Удалить группу из базы данных по уникальному идентификаору
+bool DataBase::removeGroupFromList(int)
+{
+  bool result = false;
+  throw("Not implement method");
+  return result;
+}
+
+
+/// Получить список звуковых дорожек из базы данных
+QList<Soundtrack> DataBase::getSoundtracksList()
+{
+  QList<Soundtrack> result;
+  throw("Not implement method");
+  return result;
+}
+
+
+/// Добавить новую звуковую дорожку в базу данных
+void DataBase::addSoundtrackToList(const Soundtrack &)
+{
+  throw("Not implement method");
+}
+
+
+/// Редактировать звуковую дорожку в базе данных по уникальному идентификатору
+bool DataBase::editSoundtrackInList(int, const Soundtrack &)
+{
+  bool result = false;
+  throw("Not implement method");
+  return result;
+}
+
+
+/// Удалить звуковую дорожку из базы данных по уникальному идентификатору
+bool DataBase::removeSoundtrackFromList(int)
+{
+  bool result = false;
+  throw("Not implement method");
   return result;
 }
 

@@ -3,12 +3,14 @@
 Parser::Parser()
 {
   playlistName = "";
+  logger = new Logger;
 }
 
 Parser::Parser(QString fileName)
 {
   if(!fileName.isEmpty())
     playlistName = fileName;
+  logger = new Logger;
 }
 
 
@@ -36,7 +38,6 @@ PlayList Parser::parse()
               // Поиск параметров списка при помощи регулярных выражений
               PlayListInfo plInfo = getListTitle(line);
 
-              list.setListName(plInfo.listName);
               list.setUrlTvg(plInfo.urlTvg);
               list.setTvgShift(plInfo.tvgShift);
               list.setCache(plInfo.cache);
@@ -45,6 +46,9 @@ PlayList Parser::parse()
               list.setCrop(plInfo.crop);
               list.setRefreshPeriod(plInfo.refresh);
               list.setAutoload(plInfo.autoload);
+
+//              QString unitName = typeid(this).name();
+//              logger->info("Открыт список: " + list.getListName(), unitName);
             }
 
           /// Заголовок канала
@@ -76,12 +80,16 @@ PlayList Parser::parse()
               chan->setOrder(channelPosition);
               chan->setId(channelPosition);
 //              chan->setNumber(channelPosition);
+
+//              QString unitName = typeid(this).name();
+//              logger->info("Получен канал: [" + QString::number(chan->getId()) + "] " + chan->getName(), unitName);
             }
 
           /// Наименование списка
           else if(line.startsWith("#PLAYLIST"))
             {
-              list.setListName(getListName(line));
+              QString listName = getListName(line);
+              list.setListName(listName);
             }
 
           /// Наименование группы
@@ -90,7 +98,8 @@ PlayList Parser::parse()
               if(chan==nullptr)
                 chan = new Channel;
 
-              chan->setGroupName(getGroupName(line));
+              QString groupName = getGroupName(line);
+              chan->setGroupName(groupName);
             }
 
           /// Дополнительные параметры для VLC
@@ -105,7 +114,7 @@ PlayList Parser::parse()
             }
 
           /// Ссылка на источник канал
-          else if(line.startsWith("http://") || line.startsWith("https://"))
+          else if(line.contains("://"))
             {
               // Ссылка на источник канала
               if(chan==nullptr)

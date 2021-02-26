@@ -9,6 +9,7 @@
 
 #include "playlist.h"
 #include "channel.h"
+#include "logger.h"
 
 class Parser
 {
@@ -22,6 +23,7 @@ private:
   Channel *channel;
   QFile *listFile;
   QString playlistName;
+  Logger *logger;
 
   PlayListInfo getListTitle(const QString &);
   QString getGroupName(const QString &);
